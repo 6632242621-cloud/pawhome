@@ -1,0 +1,21 @@
+<!-- My Likes Modal -->
+<div class="modal" id="myLikesModal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-heart"></i> สัตว์เลี้ยงที่คุณถูกใจ</h2>
+            <button class="close-btn" onclick="closeMyLikesModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="myLikesGrid" class="pets-grid">
+                <!-- Liked pets will be displayed here -->
+            </div>
+            <div id="myLikesEmpty" style="display: none; text-align: center; padding: 40px;">
+                <i class="fas fa-heart-broken" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                <p style="color: #666;">ยังไม่มีสัตว์เลี้ยงที่คุณถูกใจ</p>
+                <button onclick="closeMyLikesModal(); navigateTo('pet-finder')" class="btn-primary" style="margin-top: 16px;">
+                    <i class="fas fa-paw"></i> เริ่มหาสัตว์เลี้ยง
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

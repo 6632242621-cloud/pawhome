@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Badge System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="padding: 20px;">
+    <h1>Test Unread Badge</h1>
+    
+    <div style="display: flex; gap: 20px; margin-top: 30px;">
+        <!-- Test Match Card 1 -->
+        <div class="match-card" onclick="openChat(1, 'John Doe', 'https://i.pravatar.cc/200?img=1', 'Buddy')" style="width: 200px;">
+            <img src="https://i.pravatar.cc/200?img=1" alt="John">
+            <div class="match-info">
+                <div class="match-name">John Doe</div>
+                <div class="match-status">Buddy • 2 days ago</div>
+            </div>
+        </div>
+        
+        <!-- Test Match Card 2 -->
+        <div class="match-card" onclick="openChat(2, 'Jane Smith', 'https://i.pravatar.cc/200?img=2', 'Max')" style="width: 200px;">
+            <img src="https://i.pravatar.cc/200?img=2" alt="Jane">
+            <div class="match-info">
+                <div class="match-name">Jane Smith</div>
+                <div class="match-status">Max • 1 day ago</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <h3>Test Controls</h3>
+        <button onclick="testAddBadge(1)" style="padding: 10px 20px; margin: 5px;">Add Badge to Card 1</button>
+        <button onclick="testAddBadge(2)" style="padding: 10px 20px; margin: 5px;">Add Badge to Card 2</button>
+        <button onclick="testClearBadges()" style="padding: 10px 20px; margin: 5px;">Clear All Badges</button>
+        <button onclick="testShowCount()" style="padding: 10px 20px; margin: 5px;">Show Counts</button>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <h3>Debug Output:</h3>
+        <pre id="debugOutput" style="background: #f0f0f0; padding: 15px; border-radius: 5px;"></pre>
+    </div>
+    
+    <script>
+        let unreadCounts = {};
+        
+        function testAddBadge(matchId) {
+            if (!unreadCounts[matchId]) {
+                unreadCounts[matchId] = 0;
+            }
+            unreadCounts[matchId]++;
+            
+            const matchCard = document.querySelector(`[onclick*="openChat(${matchId}"]`);
+            log(`Looking for match card ${matchId}: ${matchCard ? 'FOUND' : 'NOT FOUND'}`);
+            
+            if (matchCard) {
+                let badge = matchCard.querySelector('.unread-badge');
+                
+                if (badge) {
+                    badge.textContent = unreadCounts[matchId];
+                    log(`Updated existing badge for match ${matchId} to ${unreadCounts[matchId]}`);
+                } else {
+                    badge = document.createElement('div');
+                    badge.className = 'unread-badge';
+                    badge.textContent = unreadCounts[matchId];
+                    matchCard.style.position = 'relative';
+                    matchCard.appendChild(badge);
+                    log(`Created new badge for match ${matchId} with count ${unreadCounts[matchId]}`);
+                }
+            }
+        }
+        
+        function testClearBadges() {
+            unreadCounts = {};
+            document.querySelectorAll('.unread-badge').forEach(badge => badge.remove());
+            log('Cleared all badges');
+        }
+        
+        function testShowCount() {
+            log('Current unread counts: ' + JSON.stringify(unreadCounts, null, 2));
+        }
+        
+        function openChat(matchId, userName, userImage, petName) {
+            log(`Opening chat for match ${matchId}`);
+        }
+        
+        function log(message) {
+            const output = document.getElementById('debugOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent = `[${timestamp}] ${message}\n` + output.textContent;
+        }
+        
+        log('Test page loaded. Click buttons to test badge system.');
+    </script>
+</body>
+</html>

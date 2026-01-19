@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Manual Badge - PawHome</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { padding: 40px; background: #f5f5f5; }
+        .test-section { background: white; padding: 30px; margin: 20px 0; border-radius: 15px; }
+        button { padding: 12px 24px; margin: 5px; background: #FF6B6B; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #ff5252; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .success { color: #27ae60; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Badge System Manually</h1>
+    
+    <div class="test-section">
+        <h2>Match Cards (จำลอง)</h2>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="match-card" data-match-id="1" onclick="alert('Match 1 clicked')" style="width: 200px;">
+                <img src="https://i.pravatar.cc/200?img=1" alt="User 1">
+                <div class="match-info">
+                    <div class="match-name">User 1</div>
+                    <div class="match-status">Pet • 2 days ago</div>
+                </div>
+            </div>
+            
+            <div class="match-card" data-match-id="2" onclick="alert('Match 2 clicked')" style="width: 200px;">
+                <img src="https://i.pravatar.cc/200?img=2" alt="User 2">
+                <div class="match-info">
+                    <div class="match-name">User 2</div>
+                    <div class="match-status">Pet • 1 day ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 Test Controls</h2>
+        <button onclick="testAddBadge(1)">Add Badge to Match 1</button>
+        <button onclick="testAddBadge(2)">Add Badge to Match 2</button>
+        <button onclick="testRemoveBadge(1)">Remove Badge from Match 1</button>
+        <button onclick="testRemoveBadge(2)">Remove Badge from Match 2</button>
+        <button onclick="testClearAll()">Clear All Badges</button>
+        <button onclick="testInspectDOM()">Inspect DOM</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Debug Output</h2>
+        <pre id="output">Ready to test...</pre>
+    </div>
+    
+    <script>
+        let unreadCounts = {};
+        
+        function log(msg, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            output.innerHTML = `<span class="${className}">[${timestamp}] ${icon} ${msg}</span>\n` + output.innerHTML;
+        }
+        
+        function testAddBadge(matchId) {
+            log(`Attempting to add badge to match ${matchId}...`);
+            
+            if (!unreadCounts[matchId]) {
+                unreadCounts[matchId] = 0;
+            }
+            unreadCounts[matchId]++;
+            
+            const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+            log(`Looking for: [data-match-id="${matchId}"]`);
+            log(`Found match card: ${matchCard ? 'YES ✅' : 'NO ❌'}`, matchCard ? 'success' : 'error');
+            
+            if (matchCard) {
+                let badge = matchCard.querySelector('.unread-badge');
+                
+                if (badge) {
+                    badge.textContent = unreadCounts[matchId];
+                    log(`Updated existing badge to: ${unreadCounts[matchId]}`, 'success');
+                } else {
+                    badge = document.createElement('div');
+                    badge.className = 'unread-badge';
+                    badge.textContent = unreadCounts[matchId];
+                    matchCard.style.position = 'relative';
+                    matchCard.appendChild(badge);
+                    log(`Created new badge with count: ${unreadCounts[matchId]}`, 'success');
+                }
+            } else {
+                log('ERROR: Cannot find match card!', 'error');
+            }
+        }
+        
+        function testRemoveBadge(matchId) {
+            log(`Removing badge from match ${matchId}...`);
+            
+            const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+            if (matchCard) {
+                const badge = matchCard.querySelector('.unread-badge');
+                if (badge) {
+                    badge.remove();
+                    delete unreadCounts[matchId];
+                    log(`Badge removed from match ${matchId}`, 'success');
+                } else {
+                    log(`No badge found on match ${matchId}`, 'error');
+                }
+            }
+        }
+        
+        function testClearAll() {
+            log('Clearing all badges...');
+            unreadCounts = {};
+            document.querySelectorAll('.unread-badge').forEach(badge => badge.remove());
+            log('All badges cleared', 'success');
+        }
+        
+        function testInspectDOM() {
+            log('=== DOM INSPECTION ===');
+            
+            const matchCards = document.querySelectorAll('[data-match-id]');
+            log(`Total match cards found: ${matchCards.length}`);
+            
+            matchCards.forEach(card => {
+                const matchId = card.getAttribute('data-match-id');
+                const badge = card.querySelector('.unread-badge');
+                log(`  Match ${matchId}: ${badge ? 'HAS BADGE (' + badge.textContent + ')' : 'NO BADGE'}`);
+            });
+            
+            log(`Unread counts object: ${JSON.stringify(unreadCounts)}`);
+            log('=== END INSPECTION ===');
+        }
+        
+        // Auto test on load
+        log('Test page loaded successfully!', 'success');
+        log('Click buttons above to test badge system');
+    </script>
+</body>
+</html>

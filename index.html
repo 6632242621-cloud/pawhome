@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawHome - Find Your Perfect Pet Match</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Login/Register Page -->
+    <div class="auth-page" id="authPage">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <h1>🐾 PawHome</h1>
+                <p>Find Your Perfect Pet Match</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="auth-form" id="loginForm">
+                <h2>เข้าสู่ระบบ</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> อีเมล</label>
+                        <input type="email" id="loginEmail" placeholder="example@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> รหัสผ่าน</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="auth-btn">เข้าสู่ระบบ</button>
+                </form>
+                <p class="auth-toggle">ยังไม่มีบัญชี? <a href="javascript:void(0);" onclick="showRegister(); return false;">สมัครสมาชิก</a></p>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="auth-form" id="registerForm" style="display: none;">
+                <h2>สมัครสมาชิก</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> ชื่อ-นามสกุล</label>
+                        <input type="text" id="registerName" placeholder="ชื่อของคุณ" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> อีเมล</label>
+                        <input type="email" id="registerEmail" placeholder="example@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-users-cog"></i> คุณเป็น</label>
+                        <select id="registerRole" class="role-select" required>
+                            <option value="">เลือกประเภทผู้ใช้งาน</option>
+                            <option value="pet-owner">🐾 Pet Owner - เจ้าของ/ผู้ต้องการสัตว์เลี้ยง</option>
+                            <option value="caregiver">❤️ Caregiver/Rescuer - ผู้ดูแล/ช่วยเหลือสัตว์</option>
+                            <option value="business">🏪 Business - เจ้าของร้าน/ผู้ให้บริการ</option>
+                        </select>
+                        <small style="display: block; margin-top: 8px; color: #7f8c8d; font-size: 13px;">
+                            <strong>Pet Owner:</strong> หาสัตว์เลี้ยง, ใช้บริการ, หาคู่ผสมพันธุ์<br>
+                            <strong>Caregiver/Rescuer:</strong> หาบ้านให้สัตว์, ช่วยเหลือสัตว์จร<br>
+                            <strong>Business:</strong> ให้บริการอาบน้ำ-ตัดขน, คลินิก, โรงแรม
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> รหัสผ่าน</label>
+                        <input type="password" id="registerPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> ยืนยันรหัสผ่าน</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="auth-btn">สมัครสมาชิก</button>
+                </form>
+                <p class="auth-toggle">มีบัญชีอยู่แล้ว? <a href="javascript:void(0);" onclick="showLogin(); return false;">เข้าสู่ระบบ</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="main-app" id="mainApp" style="display: none;">
+    
+    <!-- Notification Bell -->
+    <button class="notification-bell" onclick="showNotifications()" id="notificationBell">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+    </button>
+    
+    <!-- Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-page="pet-finder" id="petFinderNav">
+            <i class="fas fa-paw"></i>
+            <span>Pet Finder</span>
+        </button>
+        <button class="nav-btn" data-page="breeding" id="breedingNav">
+            <i class="fas fa-heart"></i>
+            <span>Breeding</span>
+        </button>
+        <button class="nav-btn" data-page="services">
+            <i class="fas fa-store"></i>
+            <span>Services</span>
+        </button>
+        <button class="nav-btn" data-page="matches" id="matchesNav">
+            <i class="fas fa-comments"></i>
+            <span>Matches</span>
+        </button>
+        <button class="nav-btn" data-page="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </button>
+        <button class="nav-btn" data-page="admin" id="adminNav" style="display: none;">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+        </button>
+        <button class="nav-btn" data-page="business-dashboard" id="businessNav" style="display: none;">
+            <i class="fas fa-store"></i>
+            <span>My Shop</span>
+        </button>
+    </nav>
+
+    <!-- Pet Finder Page -->
+    <div class="page active" id="pet-finder">
+        <header>
+            <h1>🐾 PawHome</h1>
+            <p>Find Your Perfect Pet Match</p>
+        </header>
+
+        <div class="swipe-container">
+            <div class="card-stack" id="cardStack">
+                <!-- Cards will be generated by JavaScript -->
+            </div>
+
+            <div class="swipe-buttons">
+                <button class="swipe-btn reject" id="rejectBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="swipe-btn like" id="likeBtn">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+
+            <div class="no-more-cards" style="display: none;">
+                <i class="fas fa-paw"></i>
+                <p>ไม่มีสัตว์เลี้ยงเพิ่มเติม</p>
+                <button class="reload-btn" onclick="location.reload()">โหลดใหม่</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breeding Match Page -->
+    <div class="page" id="breeding">
+        <header>
+            <h1>💝 Breeding Match</h1>
+            <p>Find Perfect Breeding Partner</p>
+        </header>
+
+        <div class="breeding-header-actions">
+            <button class="btn-add-breeding" onclick="showAddBreedingPetModal()">
+                <i class="fas fa-plus"></i> เพิ่มสัตว์เลี้ยงของฉันเข้าระบบ
+            </button>
+        </div>
+
+        <div class="breeding-container">
+            <div class="card-stack" id="breedingStack">
+                <!-- Breeding cards will be generated by JavaScript -->
+            </div>
+
+            <div class="swipe-buttons">
+                <button class="swipe-btn reject" id="breedingRejectBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="swipe-btn like" id="breedingLikeBtn">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Services Page -->
+    <div class="page" id="services">
+        <header>
+            <h1>🏪 Pet Services</h1>
+            <p>Find Services Near You</p>
+        </header>
+
+        <div class="services-container">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="ค้นหาบริการ...">
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">ทั้งหมด</button>
+                <button class="filter-tab" data-filter="grooming">อาบน้ำ-ตัดขน</button>
+                <button class="filter-tab" data-filter="veterinary">คลินิกสัตว์แพทย์</button>
+                <button class="filter-tab" data-filter="daycare">โรงเรียนสอนสัตว์</button>
+                <button class="filter-tab" data-filter="pet-food">ร้านอาหารสัตว์เลี้ยง</button>
+            </div>
+
+            <div class="services-list" id="servicesList">
+                <!-- Services will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Page -->
+    <div class="page" id="admin">
+        <header>
+            <h1>⚙️ Admin Panel</h1>
+            <p>จัดการระบบ PawHome</p>
+        </header>
+
+        <div class="admin-container">
+            <!-- Admin Stats Dashboard -->
+            <div class="admin-section">
+                <h3><i class="fas fa-chart-line"></i> สถิติภาพรวม</h3>
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="admin-stat-number" id="adminTotalUsers">0</div>
+                        <div class="admin-stat-label">ผู้ใช้ทั้งหมด</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <i class="fas fa-paw"></i>
+                        <div class="admin-stat-number" id="adminTotalPets">0</div>
+                        <div class="admin-stat-label">สัตว์เลี้ยงทั้งหมด</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <i class="fas fa-heart"></i>
+                        <div class="admin-stat-number" id="adminTotalLikes">0</div>
+                        <div class="admin-stat-label">Likes ทั้งหมด</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="admin-stat-number" id="adminTotalMatches">0</div>
+                        <div class="admin-stat-label">Matches ทั้งหมด</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="pets">
+                    <i class="fas fa-paw"></i> จัดการสัตว์เลี้ยง
+                </button>
+                <button class="admin-tab" data-tab="users">
+                    <i class="fas fa-users"></i> จัดการผู้ใช้
+                </button>
+                <button class="admin-tab" data-tab="likes">
+                    <i class="fas fa-heart"></i> ดู Likes
+                </button>
+                <button class="admin-tab" data-tab="matches">
+                    <i class="fas fa-handshake"></i> ดู Matches
+                </button>
+            </div>
+
+            <!-- Pets Management Tab -->
+            <div class="admin-tab-content active" id="admin-pets">
+                <div class="admin-header-actions">
+                    <button class="admin-btn-primary" onclick="showAddPetModal()">
+                        <i class="fas fa-plus"></i> เพิ่มสัตว์เลี้ยงใหม่
+                    </button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>รูปภาพ</th>
+                                <th>ชื่อ</th>
+                                <th>อายุ</th>
+                                <th>สายพันธุ์</th>
+                                <th>สถานะ</th>
+                                <th>ผู้ดูแล</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPetsTableBody">
+                            <!-- Data will be loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Management Tab -->
+            <div class="admin-tab-content" id="admin-users">
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>สมัครเมื่อ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTableBody">
+                            <!-- Data will be loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Likes Tab -->
+            <div class="admin-tab-content" id="admin-likes">
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ผู้ใช้</th>
+                                <th>สัตว์เลี้ยง</th>
+                                <th>วันที่</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminLikesTableBody">
+                            <!-- Data will be loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Matches Tab -->
+            <div class="admin-tab-content" id="admin-matches">
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User 1</th>
+                                <th>User 2</th>
+                                <th>สัตว์เลี้ยง</th>
+                                <th>สถานะ</th>
+                                <th>วันที่</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminMatchesTableBody">
+                            <!-- Data will be loaded by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="profile">
+        <header>
+            <h1>👤 Profile</h1>
+            <p>Manage Your Account</p>
+        </header>
+
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h2 id="profileName">User Name</h2>
+                <p id="profileEmail">user@email.com</p>
+                <div class="profile-role" id="profileRole">
+                    <i class="fas fa-user-tag"></i>
+                    <span id="profileRoleText">Pet Seeker</span>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>Quick Actions</h3>
+                <div class="quick-actions" id="quickActions">
+                    <!-- Actions will be generated by JavaScript based on role -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>ข้อมูลส่วนตัว</h3>
+                <button class="btn-primary" onclick="showEditProfile()" style="margin-bottom: 15px;">
+                    <i class="fas fa-edit"></i> แก้ไขข้อมูลโปรไฟล์
+                </button>
+                <div class="profile-info" id="profileInfoDisplay">
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <span class="info-label">อีเมล</span>
+                            <span class="info-value" id="profileEmailInfo">user@email.com</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <span class="info-label">เบอร์โทร</span>
+                            <span class="info-value" id="profilePhoneInfo">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span class="info-label">ที่อยู่</span>
+                            <span class="info-value" id="profileLocationInfo">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-birthday-cake"></i>
+                        <div>
+                            <span class="info-label">วันเกิด</span>
+                            <span class="info-value" id="profileBirthdayInfo">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-venus-mars"></i>
+                        <div>
+                            <span class="info-label">เพศ</span>
+                            <span class="info-value" id="profileGenderInfo">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <span class="info-label">แนะนำตัว</span>
+                            <span class="info-value" id="profileBioInfo">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <span class="info-label">สมาชิกเมื่อ</span>
+                            <span class="info-value" id="profileJoinedInfo">December 2025</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="profileEditForm" style="display: none;">
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> รูปโปรไฟล์</label>
+                        <div class="profile-image-upload">
+                            <img id="profileImagePreview" src="" alt="Profile" style="display: none; width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+                            <input type="file" id="profileImageInput" accept="image/*" style="display: none;" onchange="previewProfileImage(event)">
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('profileImageInput').click()">
+                                <i class="fas fa-upload"></i> เลือกรูป
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> ชื่อ</label>
+                        <input type="text" id="editName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> เบอร์โทร</label>
+                        <input type="tel" id="editPhone" class="form-control" placeholder="0812345678">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> ที่อยู่/พื้นที่</label>
+                        <input type="text" id="editLocation" class="form-control" placeholder="กรุงเทพมหานคร">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-birthday-cake"></i> วันเกิด</label>
+                        <input type="date" id="editBirthday" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-venus-mars"></i> เพศ</label>
+                        <select id="editGender" class="form-control">
+                            <option value="">ไม่ระบุ</option>
+                            <option value="male">ชาย</option>
+                            <option value="female">หญิง</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-info-circle"></i> แนะนำตัว</label>
+                        <textarea id="editBio" class="form-control" rows="4" placeholder="เล่าเกี่ยวกับตัวคุณ..."></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-primary" onclick="saveProfile()">
+                            <i class="fas fa-save"></i> บันทึก
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="cancelEditProfile()">
+                            <i class="fas fa-times"></i> ยกเลิก
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="profile-section">
+                <h3>สถิติ</h3>
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="showMyLikes()" style="cursor: pointer;" title="ดูสัตว์เลี้ยงที่คุณถูกใจ">
+                        <i class="fas fa-heart"></i>
+                        <div class="stat-number" id="statLikes">0</div>
+                        <div class="stat-label">Likes</div>
+                    </div>
+                    <div class="stat-card" onclick="showPage('matches')" style="cursor: pointer;" title="ดู Matches และแชท">
+                        <i class="fas fa-comments"></i>
+                        <div class="stat-number" id="statMatches">0</div>
+                        <div class="stat-label">Matches & Chats</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>การตั้งค่า</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div>
+                            <i class="fas fa-bell"></i>
+                            <span>การแจ้งเตือน</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>แสดงตำแหน่ง</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="logout-btn" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                ออกจากระบบ
+            </button>
+        </div>
+    </div>
+
+    <!-- Matches Page -->
+    <div class="page" id="matches">
+        <header>
+            <h1>💬 Your Matches</h1>
+            <p>Start Chatting</p>
+        </header>
+
+        <div class="matches-tabs">
+            <button class="match-tab active" data-type="pet_finder">
+                <i class="fas fa-paw"></i> Pet Finder
+            </button>
+            <button class="match-tab" data-type="breeding">
+                <i class="fas fa-heart"></i> Breeding
+            </button>
+        </div>
+
+        <div class="matches-container">
+            <div class="matches-grid" id="matchesGrid">
+                <!-- Matches will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal" id="chatModal">
+        <div class="modal-content chat-content">
+            <div class="chat-header">
+                <button class="back-btn" onclick="closeChat()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-user-info">
+                    <img id="chatUserImage" src="" alt="">
+                    <div>
+                        <h3 id="chatUserName"></h3>
+                        <span class="online-status">Online</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ...">
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Animation Modal -->
+    <div class="modal" id="matchModal">
+        <div class="modal-content match-animation">
+            <div class="match-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <h2>It's a Match!</h2>
+            <p id="matchPetName"></p>
+            <div class="match-images">
+                <img id="matchImage1" src="" alt="">
+                <div class="heart-between">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <img id="matchImage2" src="" alt="">
+            </div>
+            <button class="primary-btn" onclick="goToChat()">Send Message</button>
+            <button class="secondary-btn" onclick="closeMatchModal()">Keep Swiping</button>
+        </div>
+    </div>
+
+    <!-- Admin Pet Modal -->
+    <div class="modal" id="adminPetModal">
+        <div class="modal-content admin-modal">
+            <div class="modal-header">
+                <h3 id="petModalTitle">เพิ่มสัตว์เลี้ยงใหม่</h3>
+                <button class="modal-close" onclick="closeAdminPetModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="adminPetForm" onsubmit="handleSavePet(event)">
+                <input type="hidden" id="petEditId">
+                <div class="form-group">
+                    <label>ชื่อสัตว์เลี้ยง</label>
+                    <input type="text" id="petName" required>
+                </div>
+                <div class="form-group">
+                    <label>อายุ</label>
+                    <input type="text" id="petAge" placeholder="เช่น 2 ปี, 6 เดือน" required>
+                </div>
+                <div class="form-group">
+                    <label>สายพันธุ์</label>
+                    <input type="text" id="petBreed" required>
+                </div>
+                <div class="form-group">
+                    <label>URL รูปภาพ</label>
+                    <input type="url" id="petImageUrl" placeholder="https://..." required>
+                </div>
+                <div class="form-group">
+                    <label>Tags (คั่นด้วยเครื่องหมายจุลภาค)</label>
+                    <input type="text" id="petTags" placeholder="Friendly, Vaccinated, House-trained">
+                </div>
+                <div class="form-group">
+                    <label>คำอธิบาย</label>
+                    <textarea id="petDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>สถานะ</label>
+                    <select id="petStatus">
+                        <option value="available">Available</option>
+                        <option value="adopted">Adopted</option>
+                        <option value="reserved">Reserved</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="admin-btn-secondary" onclick="closeAdminPetModal()">ยกเลิก</button>
+                    <button type="submit" class="admin-btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Business Dashboard -->
+    <div class="page" id="business-dashboard">
+        <header>
+            <h1>🏪 Business Dashboard</h1>
+            <p>จัดการร้านค้าและบริการของคุณ</p>
+        </header>
+
+        <div class="business-container">
+            <!-- Stats Cards -->
+            <div class="business-stats">
+                <div class="stat-card">
+                    <i class="fas fa-store"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="businessServicesCount">0</span>
+                        <span class="stat-label">บริการทั้งหมด</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-eye"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="businessViewsCount">0</span>
+                        <span class="stat-label">ยอดเข้าชม</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="businessRating">0.0</span>
+                        <span class="stat-label">คะแนนเฉลี่ย</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Management -->
+            <div class="business-section">
+                <div class="section-header">
+                    <h2>บริการของฉัน</h2>
+                    <button class="business-btn-primary" onclick="showAddServiceModal()">
+                        <i class="fas fa-plus"></i> เพิ่มบริการ
+                    </button>
+                </div>
+
+                <div class="business-services-grid" id="businessServicesGrid">
+                    <!-- Services will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <h3 id="serviceModalTitle">เพิ่มบริการใหม่</h3>
+            <form id="serviceForm" onsubmit="handleSaveService(event)">
+                <input type="hidden" id="serviceId" value="">
+                
+                <div class="form-group">
+                    <label>ชื่อบริการ *</label>
+                    <input type="text" id="serviceName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>ประเภท *</label>
+                    <select id="serviceType" required>
+                        <option value="grooming">ร้านตัดขนสัตว์</option>
+                        <option value="veterinary">คลินิกสัตว์</option>
+                        <option value="daycare">โรงเรียนสอนสัตว์</option>
+                        <option value="training">ฝึกสัตว์</option>
+                        <option value="pet-food">ร้านอาหารสัตว์เลี้ยง</option>
+                        <option value="other">อื่นๆ</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>URL รูปภาพ *</label>
+                    <input type="url" id="serviceImageUrl" required>
+                </div>
+
+                <div class="form-group">
+                    <label>ราคา</label>
+                    <input type="text" id="servicePrice" placeholder="เช่น: 300-500 บาท">
+                </div>
+
+                <div class="form-group">
+                    <label>หมวดหมู่</label>
+                    <input type="text" id="serviceCategory" placeholder="เช่น: อาหารแห้ง, อาหารเปียก">
+                </div>
+
+                <div class="form-group">
+                    <label>รายละเอียด</label>
+                    <textarea id="serviceDescription" rows="4"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="admin-btn-secondary" onclick="closeServiceModal()">ยกเลิก</button>
+                    <button type="submit" class="admin-btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div>
+    <!-- End Main App -->
+
+    <!-- Add Breeding Pet Modal -->
+    <div class="modal" id="addBreedingPetModal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus"></i> เพิ่มสัตว์เลี้ยงเข้าระบบผสมพันธุ์</h2>
+                <button class="close-btn" onclick="closeAddBreedingPetModal()">&times;</button>
+            </div>
+            <form id="addBreedingPetForm" onsubmit="handleAddBreedingPet(event)">
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                    <div class="form-group">
+                        <label>ชื่อสัตว์เลี้ยง *</label>
+                        <input type="text" id="breedingPetName" required placeholder="เช่น: Bella">
+                    </div>
+
+                    <div class="form-group">
+                        <label>อายุ *</label>
+                        <input type="text" id="breedingPetAge" required placeholder="เช่น: 3 ปี">
+                    </div>
+
+                    <div class="form-group">
+                        <label>สายพันธุ์ *</label>
+                        <input type="text" id="breedingPetBreed" required placeholder="เช่น: Golden Retriever">
+                    </div>
+
+                    <div class="form-group">
+                        <label>เพศ *</label>
+                        <select id="breedingPetGender" required>
+                            <option value="">-- เลือกเพศ --</option>
+                            <option value="Male">ผู้</option>
+                            <option value="Female">เมีย</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL รูปภาพ *</label>
+                        <input type="url" id="breedingPetImage" required placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>รายละเอียด</label>
+                        <textarea id="breedingPetDescription" rows="3" placeholder="อธิบายเกี่ยวกับสัตว์เลี้ยงของคุณ..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>คะแนนความเข้ากันได้ทางพันธุกรรม (0-100)</label>
+                        <input type="number" id="breedingPetGeneticScore" min="0" max="100" value="85">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 10px;">การตรวจสุขภาพ</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="breedingPetVaccinated">
+                                <span>ฉีดวัคซีนแล้ว (Vaccinated)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="breedingPetDewormed">
+                                <span>ถ่ายพยาธิแล้ว (Dewormed)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="breedingPetHealthCert">
+                                <span>มีใบรับรองสุขภาพ (Health Certificate)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="breedingPetGeneticTest">
+                                <span>ตรวจพันธุกรรมแล้ว (Genetic Tested)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="admin-btn-secondary" onclick="closeAddBreedingPetModal()">ยกเลิก</button>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-save"></i> บันทึก
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- My Likes Modal -->
+    <div class="modal" id="myLikesModal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-heart"></i> สัตว์เลี้ยงที่คุณถูกใจ</h2>
+                <button class="close-btn" onclick="closeMyLikesModal()">&times;</button>
+            </div>
+            
+            <div class="matches-tabs" style="padding: 0 20px; margin-top: -10px;">
+                <button class="match-tab active" data-likes-type="pet_finder">
+                    <i class="fas fa-paw"></i> Pet Finder
+                </button>
+                <button class="match-tab" data-likes-type="breeding">
+                    <i class="fas fa-heart"></i> Breeding
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="myLikesGrid" class="matches-grid" style="padding: 20px;">
+                    <!-- Liked pets will be displayed here -->
+                </div>
+                <div id="myLikesEmpty" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-heart-broken" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                    <p style="color: #666;">ยังไม่มีสัตว์เลี้ยงที่คุณถูกใจ</p>
+                    <button onclick="closeMyLikesModal(); showPage('pet-finder');" style="margin-top: 16px; padding: 12px 24px; background: #FF6B6B; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        <i class="fas fa-paw"></i> เริ่มหาสัตว์เลี้ยง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div class="modal" id="notificationsModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-bell"></i> การแจ้งเตือน</h3>
+                <button class="close-btn" onclick="closeNotificationsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-actions" style="padding: 10px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn-text" onclick="markAllNotificationsRead()" id="markAllReadBtn">
+                    <i class="fas fa-check-double"></i> อ่านทั้งหมด
+                </button>
+                <label style="font-size: 14px;">
+                    <input type="checkbox" id="showUnreadOnly" onchange="loadNotifications()"> แสดงเฉพาะที่ยังไม่อ่าน
+                </label>
+            </div>
+            
+            <div class="modal-body">
+                <div id="notificationsList" style="padding: 0; max-height: 400px; overflow-y: auto;">
+                    <!-- Notifications will be displayed here -->
+                </div>
+                <div id="notificationsEmpty" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-bell-slash" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                    <p style="color: #666;">ไม่มีการแจ้งเตือน</p>
+                </div>
+                <div id="notificationsLoading" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #FF6B6B;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Like Detail Modal (สำหรับแสดงข้อมูลคนที่ like) -->
+    <div class="modal" id="likeDetailModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-heart"></i> <span id="likeDetailTitle">ข้อมูลผู้สนใจ</span></h3>
+                <button class="close-btn" onclick="closeLikeDetailModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body" id="likeDetailContent" style="padding: 30px;">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            
+            <div class="modal-footer" style="padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="handleRejectLike()" id="rejectLikeBtn">
+                    <i class="fas fa-times"></i> ปฏิเสธ
+                </button>
+                <button class="btn-primary" onclick="handleAcceptLike()" id="acceptLikeBtn">
+                    <i class="fas fa-check"></i> ยอมรับและแชท
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
