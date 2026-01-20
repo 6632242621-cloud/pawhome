@@ -4,4 +4,7 @@
 echo "🔧 Installing dependencies..."
 npm install
 
+echo "🔄 Running database migration..."
+node migrate.js
+
 echo "✅ Build complete!"
