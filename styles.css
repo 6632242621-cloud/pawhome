@@ -37,12 +37,13 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 40px 20px;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    overflow-y: auto;
 }
 
 /* Desktop - ensure auth page is centered even with side nav */
