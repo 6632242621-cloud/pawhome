@@ -2863,7 +2863,61 @@ function showAddPetModal() {
     document.getElementById('petModalTitle').textContent = 'เพิ่มสัตว์เลี้ยงใหม่';
     document.getElementById('adminPetForm').reset();
     document.getElementById('petEditId').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('adminPetModal').classList.add('active');
+    
+    // Add image preview listeners
+    setupImagePreview();
+}
+
+// Setup image preview
+function setupImagePreview() {
+    const fileInput = document.getElementById('petImageFile');
+    const urlInput = document.getElementById('petImageUrl');
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    // File input change
+    if (fileInput) {
+        fileInput.removeEventListener('change', handleFilePreview);
+        fileInput.addEventListener('change', handleFilePreview);
+    }
+    
+    // URL input change
+    if (urlInput) {
+        urlInput.removeEventListener('input', handleUrlPreview);
+        urlInput.addEventListener('input', handleUrlPreview);
+    }
+}
+
+function handleFilePreview(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function handleUrlPreview(event) {
+    const url = event.target.value;
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (url && url.startsWith('http')) {
+        previewImg.src = url;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
 }
 
 // Close Admin Pet Modal
@@ -2882,13 +2936,27 @@ async function editPet(petId) {
             document.getElementById('petModalTitle').textContent = 'แก้ไขข้อมูลสัตว์เลี้ยง';
             document.getElementById('petEditId').value = pet.id;
             document.getElementById('petName').value = pet.name;
-            document.getElementById('petAge').value = pet.age;
-            document.getElementById('petBreed').value = pet.breed;
-            document.getElementById('petImageUrl').value = pet.image_url;
+            document.getElementById('petSpecies').value = pet.species || '';
+            document.getElementById('petGender').value = pet.gender || '';
+            document.getElementById('petAge').value = pet.age || '';
+            document.getElementById('petBreed').value = pet.breed || '';
+            document.getElementById('petWeight').value = pet.weight || '';
+            document.getElementById('petHealthStatus').value = pet.health_status || '';
+            document.getElementById('petLocation').value = pet.location || '';
+            document.getElementById('petContactPhone').value = pet.contact_phone || '';
+            document.getElementById('petImageUrl').value = pet.image || '';
             document.getElementById('petTags').value = Array.isArray(pet.tags) ? pet.tags.join(', ') : '';
-            document.getElementById('petDescription').value = pet.description;
-            document.getElementById('petStatus').value = pet.status;
+            document.getElementById('petDescription').value = pet.description || '';
+            document.getElementById('petStatus').value = pet.status || 'available';
+            
+            // Show image preview if exists
+            if (pet.image) {
+                document.getElementById('previewImg').src = pet.image;
+                document.getElementById('imagePreview').style.display = 'block';
+            }
+            
             document.getElementById('adminPetModal').classList.add('active');
+            setupImagePreview();
         }
     } catch (error) {
         console.error('Error loading pet:', error);
@@ -2906,12 +2974,48 @@ async function handleSavePet(event) {
         .map(t => t.trim())
         .filter(t => t);
     
+    // Check if user uploaded a file
+    const imageFile = document.getElementById('petImageFile').files[0];
+    let imageUrl = document.getElementById('petImageUrl').value;
+    
+    try {
+        // Upload image if file selected
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append('petImage', imageFile);
+            
+            const uploadResponse = await fetch(`${API_BASE_URL}/pets/upload-image`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const uploadResult = await uploadResponse.json();
+            
+            if (uploadResult.success) {
+                imageUrl = uploadResult.imageUrl;
+            } else {
+                alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' + uploadResult.message);
+                return;
+            }
+        }
+        
+        if (!imageUrl) {
+            alert('กรุณาเลือกรูปภาพหรือใส่ URL รูปภาพ');
+            return;
+        }
+    
     const petData = {
         user_id: currentUserId,
         name: document.getElementById('petName').value,
-        age: document.getElementById('petAge').value,
+        species: document.getElementById('petSpecies').value,
+        gender: document.getElementById('petGender').value,
+        age: parseInt(document.getElementById('petAge').value),
         breed: document.getElementById('petBreed').value,
-        image_url: document.getElementById('petImageUrl').value,
+        weight: parseFloat(document.getElementById('petWeight').value) || null,
+        health_status: document.getElementById('petHealthStatus').value || null,
+        location: document.getElementById('petLocation').value,
+        contact_phone: document.getElementById('petContactPhone').value,
+        image: imageUrl,
         tags: tags,
         description: document.getElementById('petDescription').value,
         status: document.getElementById('petStatus').value

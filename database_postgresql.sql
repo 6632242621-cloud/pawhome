@@ -27,7 +27,12 @@ CREATE TABLE IF NOT EXISTS pets (
     breed VARCHAR(100),
     age INTEGER,
     gender VARCHAR(10) CHECK (gender IN ('male', 'female')),
+    weight DECIMAL(5,2),
+    health_status TEXT,
+    location VARCHAR(100),
+    contact_phone VARCHAR(20),
     description TEXT,
+    tags TEXT,
     image VARCHAR(255),
     status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'adopted', 'pending')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

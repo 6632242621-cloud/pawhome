@@ -625,16 +625,58 @@
                     <input type="text" id="petName" required>
                 </div>
                 <div class="form-group">
-                    <label>อายุ</label>
-                    <input type="text" id="petAge" placeholder="เช่น 2 ปี, 6 เดือน" required>
+                    <label>ประเภทสัตว์</label>
+                    <select id="petSpecies" required>
+                        <option value="">-- เลือกประเภท --</option>
+                        <option value="dog">สุนัข</option>
+                        <option value="cat">แมว</option>
+                        <option value="bird">นก</option>
+                        <option value="rabbit">กระต่าย</option>
+                        <option value="other">อื่นๆ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>เพศ</label>
+                    <select id="petGender" required>
+                        <option value="">-- เลือกเพศ --</option>
+                        <option value="male">เพศผู้</option>
+                        <option value="female">เพศเมีย</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>อายุ (ปี)</label>
+                    <input type="number" id="petAge" placeholder="เช่น 2" min="0" max="30" required>
                 </div>
                 <div class="form-group">
                     <label>สายพันธุ์</label>
-                    <input type="text" id="petBreed" required>
+                    <input type="text" id="petBreed" placeholder="เช่น Golden Retriever" required>
                 </div>
                 <div class="form-group">
-                    <label>URL รูปภาพ</label>
-                    <input type="url" id="petImageUrl" placeholder="https://..." required>
+                    <label>น้ำหนัก (กก.)</label>
+                    <input type="number" id="petWeight" placeholder="เช่น 15" min="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>สุขภาพ/วัคซีน</label>
+                    <textarea id="petHealthStatus" rows="2" placeholder="เช่น ฉีดวัคซีนครบ, ทำหมันแล้ว, สุขภาพดี"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>สถานที่</label>
+                    <input type="text" id="petLocation" placeholder="เช่น กรุงเทพมหานคร, เชียงใหม่" required>
+                </div>
+                <div class="form-group">
+                    <label>เบอร์ติดต่อ</label>
+                    <input type="tel" id="petContactPhone" placeholder="เช่น 081-234-5678" required>
+                </div>
+                <div class="form-group">
+                    <label>รูปภาพสัตว์เลี้ยง</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="file" id="petImageFile" accept="image/*" style="flex: 1;">
+                        <span style="color: #95a5a6;">หรือ</span>
+                        <input type="url" id="petImageUrl" placeholder="URL รูปภาพ" style="flex: 1;">
+                    </div>
+                    <div id="imagePreview" style="margin-top: 10px; display: none;">
+                        <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; object-fit: cover;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Tags (คั่นด้วยเครื่องหมายจุลภาค)</label>
@@ -642,14 +684,14 @@
                 </div>
                 <div class="form-group">
                     <label>คำอธิบาย</label>
-                    <textarea id="petDescription" rows="4" required></textarea>
+                    <textarea id="petDescription" rows="4" placeholder="บุคลิก นิสัย ความต้องการพิเศษ..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label>สถานะ</label>
                     <select id="petStatus">
                         <option value="available">Available</option>
                         <option value="adopted">Adopted</option>
-                        <option value="reserved">Reserved</option>
+                        <option value="pending">Pending</option>
                     </select>
                 </div>
                 <div class="modal-actions">

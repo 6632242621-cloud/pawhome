@@ -1,6 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Create uploads directory if not exists
+const uploadsDir = path.join(__dirname, '..', 'uploads', 'pets');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'pet-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('รองรับเฉพาะไฟล์รูปภาพ (JPEG, PNG, GIF, WebP)'));
+        }
+    }
+});
 
 // ดึงรายการสัตว์เลี้ยงทั้งหมด
 router.get('/list', async (req, res) => {
@@ -84,20 +120,27 @@ router.post('/add', async (req, res) => {
     try {
         const { 
             user_id, 
-            name, 
+            name,
+            species,
+            gender,
             age, 
             breed, 
+            weight,
+            health_status,
+            location,
+            contact_phone,
             image, 
             tags = [], 
-            description 
+            description,
+            status = 'available'
         } = req.body;
 
         const tagsJson = JSON.stringify(tags);
 
         const [result] = await pool.query(`
-            INSERT INTO pets (user_id, name, age, breed, image, tags, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [user_id, name, age, breed, image, tagsJson, description]);
+            INSERT INTO pets (user_id, name, species, gender, age, breed, weight, health_status, location, contact_phone, image, tags, description, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [user_id, name, species, gender, age, breed, weight, health_status, location, contact_phone, image, tagsJson, description, status]);
 
         res.json({
             success: true,
@@ -119,9 +162,15 @@ router.put('/update/:id', async (req, res) => {
     try {
         const petId = req.params.id;
         const { 
-            name, 
+            name,
+            species,
+            gender,
             age, 
-            breed, 
+            breed,
+            weight,
+            health_status,
+            location,
+            contact_phone,
             image, 
             tags = [], 
             description, 
@@ -133,14 +182,20 @@ router.put('/update/:id', async (req, res) => {
         await pool.query(`
             UPDATE pets SET
                 name = ?,
+                species = ?,
+                gender = ?,
                 age = ?,
                 breed = ?,
+                weight = ?,
+                health_status = ?,
+                location = ?,
+                contact_phone = ?,
                 image = ?,
                 tags = ?,
                 description = ?,
                 status = ?
             WHERE id = ?
-        `, [name, age, breed, image, tagsJson, description, status, petId]);
+        `, [name, species, gender, age, breed, weight, health_status, location, contact_phone, image, tagsJson, description, status, petId]);
 
         res.json({
             success: true,
