@@ -1,5 +1,7 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api'
+    : 'https://pawhome.onrender.com/api';
 let currentUserId = 1; // จะถูกอัพเดตหลังจากล็อกอิน
 
 // WebSocket Configuration
@@ -10,7 +12,11 @@ let isSocketConnected = false;
 function initializeSocket() {
     if (socket && isSocketConnected) return;
     
-    socket = io('http://localhost:3000', {
+    const SOCKET_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'https://pawhome.onrender.com';
+    
+    socket = io(SOCKET_URL, {
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionDelay: 1000,
