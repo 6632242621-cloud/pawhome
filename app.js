@@ -1609,23 +1609,29 @@ async function loadPetsFromAPI() {
             // กรองเฉพาะสัตว์ที่ยังไม่เคยกด
             const filteredPets = result.pets.filter(pet => !viewedPets.includes(pet.id));
             
-            petFinderData = filteredPets.map(pet => ({
-                id: pet.id,
-                name: pet.name,
-                age: pet.age,
-                breed: pet.breed,
-                image: pet.image_url,
-                tags: pet.tags || [],
-                description: pet.description,
-                caregiver: {
-                    name: pet.caregiver_name || 'ไม่ระบุ',
-                    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
-                    location: 'กรุงเทพมหานคร',
-                    phone: '-',
-                    type: 'Individual',
-                    verified: false
-                }
-            }));
+            petFinderData = filteredPets.map(pet => {
+                // Validate image URL
+                const imageUrl = pet.image || pet.image_url;
+                const isValidImage = imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('/'));
+                
+                return {
+                    id: pet.id,
+                    name: pet.name,
+                    age: pet.age,
+                    breed: pet.breed,
+                    image: isValidImage ? imageUrl : null,
+                    tags: pet.tags || [],
+                    description: pet.description,
+                    caregiver: {
+                        name: pet.caregiver_name || 'ไม่ระบุ',
+                        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
+                        location: 'กรุงเทพมหานคร',
+                        phone: '-',
+                        type: 'Individual',
+                        verified: false
+                    }
+                };
+            });
             console.log('โหลดข้อมูลสัตว์เลี้ยงสำเร็จ:', petFinderData.length, 'ตัว');
         } else {
             console.error('ไม่สามารถโหลดข้อมูลได้:', result.message);
