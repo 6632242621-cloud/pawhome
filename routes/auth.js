@@ -56,6 +56,13 @@ router.post('/login', async (req, res) => {
 
         // ส่งข้อมูลผู้ใช้กลับ (ไม่รวม password)
         const { password: _, ...userWithoutPassword } = user;
+        
+        console.log('Login successful for user:', {
+            id: userWithoutPassword.id,
+            username: userWithoutPassword.username,
+            email: userWithoutPassword.email,
+            role: userWithoutPassword.role
+        });
 
         res.json({
             success: true,
@@ -103,11 +110,11 @@ router.post('/register', async (req, res) => {
 
         // บันทึกข้อมูล
         const [result] = await pool.query(
-            'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)',
+            'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?) RETURNING id',
             [username, hashedPassword, email || null, role]
         );
 
-        const userId = result.insertId;
+        const userId = result[0]?.id || result.id;
 
         // สร้าง JWT token
         const token = jwt.sign(
@@ -120,6 +127,13 @@ router.post('/register', async (req, res) => {
             config.jwt.secret,
             { expiresIn: config.jwt.expiresIn }
         );
+        
+        console.log('Register successful for user:', {
+            id: userId,
+            username,
+            email,
+            role
+        });
 
         res.json({
             success: true,
