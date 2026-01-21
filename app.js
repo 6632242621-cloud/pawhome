@@ -2974,11 +2974,11 @@ async function handleSavePet(event) {
         .map(t => t.trim())
         .filter(t => t);
     
-    // Check if user uploaded a file
-    const imageFile = document.getElementById('petImageFile').files[0];
-    let imageUrl = document.getElementById('petImageUrl').value;
-    
     try {
+        // Check if user uploaded a file
+        const imageFile = document.getElementById('petImageFile').files[0];
+        let imageUrl = document.getElementById('petImageUrl').value;
+        
         // Upload image if file selected
         if (imageFile) {
             const formData = new FormData();
@@ -3003,25 +3003,24 @@ async function handleSavePet(event) {
             alert('กรุณาเลือกรูปภาพหรือใส่ URL รูปภาพ');
             return;
         }
-    
-    const petData = {
-        user_id: currentUserId,
-        name: document.getElementById('petName').value,
-        species: document.getElementById('petSpecies').value,
-        gender: document.getElementById('petGender').value,
-        age: parseInt(document.getElementById('petAge').value),
-        breed: document.getElementById('petBreed').value,
-        weight: parseFloat(document.getElementById('petWeight').value) || null,
-        health_status: document.getElementById('petHealthStatus').value || null,
-        location: document.getElementById('petLocation').value,
-        contact_phone: document.getElementById('petContactPhone').value,
-        image: imageUrl,
-        tags: tags,
-        description: document.getElementById('petDescription').value,
-        status: document.getElementById('petStatus').value
-    };
-    
-    try {
+        
+        const petData = {
+            user_id: currentUserId,
+            name: document.getElementById('petName').value,
+            species: document.getElementById('petSpecies').value,
+            gender: document.getElementById('petGender').value,
+            age: parseInt(document.getElementById('petAge').value),
+            breed: document.getElementById('petBreed').value,
+            weight: parseFloat(document.getElementById('petWeight').value) || null,
+            health_status: document.getElementById('petHealthStatus').value || null,
+            location: document.getElementById('petLocation').value,
+            contact_phone: document.getElementById('petContactPhone').value,
+            image: imageUrl,
+            tags: tags,
+            description: document.getElementById('petDescription').value,
+            status: document.getElementById('petStatus').value
+        };
+        
         const url = petId ? `${API_BASE_URL}/pets/update/${petId}` : `${API_BASE_URL}/pets/add`;
         const method = petId ? 'PUT' : 'POST';
         if (petId) petData.id = petId;
