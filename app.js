@@ -1716,29 +1716,35 @@ function renderPetCard() {
     const pet = petFinderData[currentCardIndex];
     currentPet = pet;
     
+    // Default images
+    const defaultPetImage = 'https://via.placeholder.com/400x300?text=No+Image';
+    const defaultUserImage = 'https://via.placeholder.com/80?text=User';
+    const petImage = (pet.image && pet.image.trim()) ? pet.image : defaultPetImage;
+    const caregiverImage = (pet.caregiver?.image && pet.caregiver.image.trim()) ? pet.caregiver.image : defaultUserImage;
+    
     const card = document.createElement('div');
     card.className = 'pet-card';
     card.innerHTML = `
         <div class="card-inner">
             <div class="card-front">
-                <img src="${pet.image}" alt="${pet.name}">
+                <img src="${petImage}" alt="${pet.name}" onerror="this.src='${defaultPetImage}'">
                 <div class="pet-info">
                     <div class="pet-header">
                         <div>
                             <span class="pet-name">${pet.name}</span>
-                            <span class="pet-age">, ${pet.age}</span>
+                            <span class="pet-age">, ${pet.age || 'ไม่ระบุอายุ'}</span>
                         </div>
                     </div>
-                    <span class="pet-breed">${pet.breed}</span>
+                    <span class="pet-breed">${pet.breed || 'ไม่ระบุสายพันธุ์'}</span>
                     <div class="pet-tags">
-                        ${pet.tags.map(tag => `
+                        ${pet.tags && pet.tags.length > 0 ? pet.tags.map(tag => `
                             <span class="tag">
                                 <i class="fas fa-check"></i>
                                 ${tag}
                             </span>
-                        `).join('')}
+                        `).join('') : ''}
                     </div>
-                    <p class="pet-description">${pet.description}</p>
+                    <p class="pet-description">${pet.description || 'ไม่มีคำอธิบาย'}</p>
                     <button class="flip-btn" onclick="flipCard(event)">
                         <i class="fas fa-info-circle"></i> ข้อมูลผู้ดูแล
                     </button>
@@ -1750,19 +1756,19 @@ function renderPetCard() {
                         <i class="fas fa-arrow-left"></i> กลับ
                     </button>
                     <div class="caregiver-header">
-                        <img src="${pet.caregiver.image}" alt="${pet.caregiver.name}" class="caregiver-avatar">
+                        <img src="${caregiverImage}" alt="${pet.caregiver?.name || 'Caregiver'}" class="caregiver-avatar" onerror="this.src='${defaultUserImage}'">
                         <div>
-                            <h3>${pet.caregiver.name}</h3>
-                            ${pet.caregiver.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> ยืนยันตัวตนแล้ว</span>' : ''}
+                            <h3>${pet.caregiver?.name || pet.caregiver_name || 'ไม่ระบุชื่อ'}</h3>
+                            ${pet.caregiver?.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> ยืนยันตัวตนแล้ว</span>' : ''}
                         </div>
                     </div>
                     <div class="caregiver-type">
-                        <i class="fas fa-home"></i> ${pet.caregiver.type === 'Shelter' ? 'บ้านพักสัตว์' : pet.caregiver.type === 'Foundation' ? 'มูลนิธิ' : pet.caregiver.type === 'Farm' ? 'ฟาร์ม' : 'ผู้ดูแลส่วนบุคคล'}
+                        <i class="fas fa-home"></i> ${pet.caregiver?.type === 'Shelter' ? 'บ้านพักสัตว์' : pet.caregiver?.type === 'Foundation' ? 'มูลนิธิ' : pet.caregiver?.type === 'Farm' ? 'ฟาร์ม' : 'ผู้ดูแลส่วนบุคคล'}
                     </div>
                     <div class="caregiver-details">
                         <div class="detail-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>${pet.caregiver.location}</span>
+                            <span>${pet.caregiver?.location || pet.location || 'ไม่ระบุสถานที่'}</span>
                         </div>
                     </div>
                     <div class="match-info-notice">
