@@ -1863,9 +1863,8 @@ async function initBreeding() {
 async function loadBreedingPets() {
     try {
         if (!currentUserId) {
-            console.error('No user ID available');
+            console.warn('WARNING: currentUserId is not set!');
             breedingPets = [];
-            displayBreedingEmptyState();
             return;
         }
         
