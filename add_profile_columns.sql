@@ -1,0 +1,5 @@
+-- Add missing profile columns to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth DATE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(10);
