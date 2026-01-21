@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawHome - Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .accounts {
+            text-align: left;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .accounts strong {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 PawHome Setup</h1>
+        <p>จัดการระบบและสมัครสมาชิก</p>
+        
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 30px;">
+            <button onclick="showRegisterForm()" style="background: #28a745;">
+                📝 สมัครสมาชิก
+            </button>
+            <button id="setupBtn" onclick="addSampleData()">
+                🐾 เพิ่มข้อมูลตัวอย่าง
+            </button>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none; margin-bottom: 20px;">
+            <h3>สมัครสมาชิกใหม่</h3>
+            <form onsubmit="register(event)" style="text-align: left;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #666;">Username:</label>
+                    <input type="text" id="regUsername" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #666;">Email:</label>
+                    <input type="email" id="regEmail" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #666;">Password:</label>
+                    <input type="password" id="regPassword" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #666;">Role:</label>
+                    <select id="regRole" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+                        <option value="pet-owner">เจ้าของสัตว์เลี้ยง</option>
+                        <option value="caregiver">ผู้ดูแลสัตว์</option>
+                        <option value="business">ธุรกิจบริการ</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="flex: 1; background: #28a745;">
+                        ✅ สมัครสมาชิก
+                    </button>
+                    <button type="button" onclick="hideRegisterForm()" style="flex: 1; background: #6c757d;">
+                        ❌ ยกเลิก
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function showRegisterForm() {
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        function hideRegisterForm() {
+            document.getElementById('registerForm').style.display = 'none';
+        }
+        
+        async function register(event) {
+            event.preventDefault();
+            
+            const result = document.getElementById('result');
+            result.style.display = 'none';
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+                
+                const data = await response.json();
+                
+                result.style.display = 'block';
+                
+                if (response.ok) {
+                    result.className = 'success';
+                    result.innerHTML = `
+                        <strong>✅ สมัครสมาชิกสำเร็จ!</strong>
+                        <div style="margin-top: 10px;">
+                            <div>Username: ${username}</div>
+                            <div>Email: ${email}</div>
+                            <div>Role: ${role}</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <a href="/" style="color: #667eea; text-decoration: underline;">
+                                ไปหน้า Login
+                            </a>
+                        </div>
+                    `;
+                    hideRegisterForm();
+                    document.getElementById('registerForm').querySelector('form').reset();
+                } else {
+                    result.className = 'error';
+                    result.innerHTML = `<strong>❌ ${data.message || 'เกิดข้อผิดพลาด'}</strong>`;
+                }
+                
+            } catch (error) {
+                result.style.display = 'block';
+                result.className = 'error';
+                result.innerHTML = `<strong>❌ เกิดข้อผิดพลาด:</strong><br>${error.message}`;
+            }
+        }
+        
+        async function addSampleData() {
+            const btn = document.getElementById('setupBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = 'กำลังเพิ่มข้อมูล...';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/setup/add-sample-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                result.style.display = 'block';
+                
+                if (data.success) {
+                    result.className = 'success';
+                    result.innerHTML = `
+                        <strong>✅ ${data.message}</strong>
+                        <div class="accounts">
+                            <strong>📝 บัญชีทดสอบ:</strong>
+                            ${data.data.testAccounts.map(acc => 
+                                `<div>• ${acc.email} / ${acc.password} (${acc.role})</div>`
+                            ).join('')}
+                            <strong>📊 ข้อมูลที่เพิ่ม:</strong>
+                            <div>• ผู้ใช้: ${data.data.users} คน</div>
+                            <div>• สัตว์เลี้ยง: ${data.data.pets} ตัว</div>
+                            <div>• บริการ: ${data.data.services} รายการ</div>
+                        </div>
+                    `;
+                } else {
+                    result.className = 'info';
+                    result.innerHTML = `<strong>ℹ️ ${data.message}</strong>`;
+                }
+                
+            } catch (error) {
+                result.style.display = 'block';
+                result.className = 'error';
+                result.innerHTML = `<strong>❌ เกิดข้อผิดพลาด:</strong><br>${error.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'เพิ่มข้อมูลตัวอย่าง';
+            }
+        }
+    </script>
+</body>
+</html>
