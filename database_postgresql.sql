@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS matches (
     user2_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     pet_id INTEGER REFERENCES pets(id) ON DELETE CASCADE,
     pet_owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    match_type VARCHAR(20) DEFAULT 'pet_finder',
+    breeding_pet1_id INTEGER REFERENCES breeding_pets(id) ON DELETE SET NULL,
+    breeding_pet2_id INTEGER REFERENCES breeding_pets(id) ON DELETE SET NULL,
     status VARCHAR(20) DEFAULT 'matched' CHECK (status IN ('matched', 'accepted', 'rejected')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user1_id, user2_id, pet_id)
