@@ -270,10 +270,20 @@ router.get('/my-pets/:userId', async (req, res) => {
             ORDER BY created_at DESC
         `, [userId]);
 
-        const petsWithTags = pets.map(pet => ({
-            ...pet,
-            tags: pet.tags ? JSON.parse(pet.tags) : []
-        }));
+        const petsWithTags = pets.map(pet => {
+            let tags = [];
+            if (pet.tags) {
+                try {
+                    tags = typeof pet.tags === 'string' ? JSON.parse(pet.tags) : pet.tags;
+                } catch (e) {
+                    tags = [];
+                }
+            }
+            return {
+                ...pet,
+                tags: tags
+            };
+        });
 
         res.json({ 
             success: true, 
@@ -284,7 +294,8 @@ router.get('/my-pets/:userId', async (req, res) => {
         console.error('My pets error:', error);
         res.json({ 
             success: false, 
-            message: error.message 
+            message: error.message,
+            pets: []
         });
     }
 });
