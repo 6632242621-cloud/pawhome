@@ -1862,6 +1862,13 @@ async function initBreeding() {
 // โหลดข้อมูลสัตว์เลี้ยงในระบบ breeding จาก API
 async function loadBreedingPets() {
     try {
+        if (!currentUserId) {
+            console.error('No user ID available');
+            breedingPets = [];
+            displayBreedingEmptyState();
+            return;
+        }
+        
         console.log('Loading breeding pets for user:', currentUserId);
         const response = await fetch(`${API_BASE_URL}/breeding/list/${currentUserId}`);
         
