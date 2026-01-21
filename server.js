@@ -17,6 +17,7 @@ const likesRoutes = require('./routes/likes');
 const breedingRoutes = require('./routes/breeding');
 const notificationsRoutes = require('./routes/notifications');
 const usersRoutes = require('./routes/users');
+const setupRoutes = require('./routes/setup');
 
 // Import socket handlers
 const { initializeSocketHandlers } = require('./socket/chatSocket');
@@ -76,6 +77,7 @@ app.use('/api/likes', likesRoutes);
 app.use('/api/breeding', breedingRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/setup', setupRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
