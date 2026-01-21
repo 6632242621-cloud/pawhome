@@ -2,7 +2,7 @@
 const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000/api'
     : 'https://pawhome.onrender.com/api';
-let currentUserId = 1; // จะถูกอัพเดตหลังจากล็อกอิน
+let currentUserId = null; // จะถูกอัพเดตหลังจากล็อกอิน
 
 // WebSocket Configuration
 let socket = null;
@@ -27,12 +27,10 @@ function initializeSocket() {
         console.log('🔌 WebSocket Connected:', socket.id);
         isSocketConnected = true;
         
-        // Join with user ID
+        // Join with user ID only if available
         if (currentUserId) {
             console.log('👤 Joining as user:', currentUserId);
             socket.emit('user:join', currentUserId);
-        } else {
-            console.warn('⚠️ WARNING: currentUserId is not set!');
         }
     });
 
@@ -501,8 +499,14 @@ function checkAuth() {
     if (user) {
         currentUser = JSON.parse(user);
         currentUserId = currentUser.id; // อัพเดต currentUserId จาก localStorage
+        console.log('✅ User authenticated, ID:', currentUserId);
         showMainApp();
         initNotifications(); // เริ่มระบบ notifications ถ้ามี user อยู่แล้ว
+        
+        // Join socket after user is authenticated
+        if (socket && isSocketConnected && currentUserId) {
+            socket.emit('user:join', currentUserId);
+        }
     } else {
         showAuthPage();
     }
@@ -603,13 +607,16 @@ async function handleLogin(event) {
         if (result.success) {
             currentUser = result.user;
             currentUserId = result.user.id; // อัพเดต currentUserId ด้วย
-            console.log('Current User:', currentUser); // Debug: check user data
-            console.log('User ID:', currentUserId); // Debug: check user ID
-            console.log('User Role:', currentUser.role); // Debug: check role
+            console.log('✅ Login successful, User ID:', currentUserId);
             localStorage.setItem('pawHomeUser', JSON.stringify(result.user));
             alert('เข้าสู่ระบบสำเร็จ!');
             showMainApp();
             initNotifications(); // เริ่มระบบ notifications หลัง login
+            
+            // Join socket after login
+            if (socket && isSocketConnected && currentUserId) {
+                socket.emit('user:join', currentUserId);
+            }
         } else {
             alert(result.message || 'เข้าสู่ระบบไม่สำเร็จ');
         }
