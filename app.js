@@ -543,12 +543,14 @@ function showMainApp() {
 function showLogin() {
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('registerForm').style.display = 'none';
+    document.querySelector('.auth-logo').style.display = 'block'; // Show logo on login page
     window.history.pushState({ page: 'login' }, 'Login', '#login');
 }
 
 function showRegister() {
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('registerForm').style.display = 'block';
+    document.querySelector('.auth-logo').style.display = 'none'; // Hide logo on register page
     window.history.pushState({ page: 'register' }, 'Register', '#register');
 }
 
@@ -558,9 +560,11 @@ window.addEventListener('popstate', function(event) {
     if (hash === '#register' || event.state?.page === 'register') {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('registerForm').style.display = 'block';
+        document.querySelector('.auth-logo').style.display = 'none';
     } else {
         document.getElementById('loginForm').style.display = 'block';
         document.getElementById('registerForm').style.display = 'none';
+        document.querySelector('.auth-logo').style.display = 'block';
     }
 });
 
