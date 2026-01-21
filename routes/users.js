@@ -150,7 +150,7 @@ router.post('/profile/:userId/image', upload.single('profile_image'), async (req
         res.json({ 
             success: true, 
             message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
-            image: imagePath
+            profile_image: imagePath
         });
     } catch (error) {
         console.error('Error uploading profile image:', error);

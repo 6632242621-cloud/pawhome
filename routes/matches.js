@@ -5,7 +5,7 @@ const { pool } = require('../config/database');
 // ดึง matches ของผู้ใช้ (รองรับทั้ง pet_finder และ breeding)
 router.post('/list', async (req, res) => {
     try {
-        const { user_id, match_type } = req.body;
+        const { user_id } = req.body;
 
         let query = `
             SELECT 
@@ -27,16 +27,10 @@ router.post('/list', async (req, res) => {
                 END = u_matched.id
             )
             JOIN users u_current ON u_current.id = ?
-            WHERE (m.user1_id = ? OR m.user2_id = ?)`;
+            WHERE (m.user1_id = ? OR m.user2_id = ?)
+            ORDER BY m.created_at DESC`;
         
         const params = [user_id, user_id, user_id, user_id];
-        
-        if (match_type) {
-            query += ` AND m.match_type = ?`;
-            params.push(match_type);
-        }
-        
-        query += ` ORDER BY m.created_at DESC`;
 
         const [matches] = await pool.query(query, params);
 
