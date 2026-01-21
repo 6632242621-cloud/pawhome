@@ -1719,8 +1719,16 @@ function renderPetCard() {
     // Default images
     const defaultPetImage = 'https://via.placeholder.com/400x300?text=No+Image';
     const defaultUserImage = 'https://via.placeholder.com/80?text=User';
-    const petImage = (pet.image && pet.image.trim()) ? pet.image : defaultPetImage;
-    const caregiverImage = (pet.caregiver?.image && pet.caregiver.image.trim()) ? pet.caregiver.image : defaultUserImage;
+    
+    // Validate and clean image URLs
+    const isValidUrl = (url) => {
+        if (!url || typeof url !== 'string') return false;
+        url = url.trim();
+        return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/');
+    };
+    
+    const petImage = isValidUrl(pet.image) ? pet.image : defaultPetImage;
+    const caregiverImage = isValidUrl(pet.caregiver?.image) ? pet.caregiver.image : defaultUserImage;
     
     const card = document.createElement('div');
     card.className = 'pet-card';
