@@ -38,6 +38,33 @@ const upload = multer({
     }
 });
 
+// อัปโหลดรูปภาพสัตว์เลี้ยง
+router.post('/upload-image', upload.single('petImage'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.json({
+                success: false,
+                message: 'ไม่พบไฟล์รูปภาพ'
+            });
+        }
+
+        const imageUrl = `/uploads/pets/${req.file.filename}`;
+        
+        res.json({
+            success: true,
+            message: 'อัปโหลดรูปภาพสำเร็จ',
+            imageUrl: imageUrl,
+            filename: req.file.filename
+        });
+    } catch (error) {
+        console.error('Upload image error:', error);
+        res.json({
+            success: false,
+            message: error.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ'
+        });
+    }
+});
+
 // ดึงรายการสัตว์เลี้ยงทั้งหมด
 router.get('/list', async (req, res) => {
     try {
