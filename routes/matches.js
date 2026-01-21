@@ -11,7 +11,7 @@ router.post('/list', async (req, res) => {
             SELECT 
                 m.*,
                 p.name as pet_name,
-                p.image_url as pet_image,
+                p.image as pet_image,
                 p.user_id as pet_owner_id,
                 u_matched.username as matched_user_name,
                 u_matched.email as matched_user_email,

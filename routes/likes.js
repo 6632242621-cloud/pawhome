@@ -168,7 +168,7 @@ router.get('/my-likes/:userId', async (req, res) => {
                 p.name,
                 p.age,
                 p.breed,
-                p.image_url,
+                p.image,
                 p.tags,
                 p.description
             FROM pet_likes l
@@ -308,7 +308,7 @@ router.get('/detail/:likeId', async (req, res) => {
                 u.date_of_birth as liker_dob,
                 p.name as pet_name,
                 p.breed as pet_breed,
-                p.image_url as pet_image
+                p.image as pet_image
             FROM pet_likes pl
             JOIN users u ON pl.user_id = u.id
             JOIN pets p ON pl.pet_id = p.id

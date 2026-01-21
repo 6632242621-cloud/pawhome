@@ -66,17 +66,17 @@ router.get('/unviewed/:userId', async (req, res) => {
 router.post('/add', async (req, res) => {
     try {
         const {
-            user_id, name, age, breed, gender, image_url,
+            user_id, name, age, breed, gender, image,
             vaccinated, dewormed, health_certificate, genetic_tested,
             genetic_match_score, description
         } = req.body;
 
         const [result] = await pool.query(`
             INSERT INTO breeding_pets 
-            (user_id, name, age, breed, gender, image_url, vaccinated, dewormed, 
+            (user_id, name, age, breed, gender, image, vaccinated, dewormed, 
              health_certificate, genetic_tested, genetic_match_score, description, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
-        `, [user_id, name, age, breed, gender, image_url, vaccinated, dewormed, 
+        `, [user_id, name, age, breed, gender, image, vaccinated, dewormed, 
             health_certificate, genetic_tested, genetic_match_score, description]);
 
         res.json({ 
@@ -217,8 +217,8 @@ router.get('/my-matches/:userId', async (req, res) => {
         const [rows] = await pool.query(`
             SELECT 
                 m.*,
-                bp1.name as my_pet_name, bp1.image_url as my_pet_image,
-                bp2.name as match_pet_name, bp2.image_url as match_pet_image,
+                bp1.name as my_pet_name, bp1.image as my_pet_image,
+                bp2.name as match_pet_name, bp2.image as match_pet_image,
                 u.username as match_username
             FROM matches m
             JOIN breeding_pets bp1 ON m.breeding_pet1_id = bp1.id
@@ -256,18 +256,18 @@ router.put('/update/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const {
-            name, age, breed, gender, image_url,
+            name, age, breed, gender, image,
             vaccinated, dewormed, health_certificate, genetic_tested,
             genetic_match_score, description, status
         } = req.body;
 
         await pool.query(`
             UPDATE breeding_pets 
-            SET name = ?, age = ?, breed = ?, gender = ?, image_url = ?,
+            SET name = ?, age = ?, breed = ?, gender = ?, image = ?,
                 vaccinated = ?, dewormed = ?, health_certificate = ?, genetic_tested = ?,
                 genetic_match_score = ?, description = ?, status = ?
             WHERE id = ?
-        `, [name, age, breed, gender, image_url, vaccinated, dewormed, 
+        `, [name, age, breed, gender, image, vaccinated, dewormed, 
             health_certificate, genetic_tested, genetic_match_score, description, status, id]);
 
         res.json({ success: true, message: 'Breeding pet updated successfully' });
@@ -400,7 +400,7 @@ router.get('/like-detail/:likeId', async (req, res) => {
                 u.date_of_birth as liker_dob,
                 bp.name as pet_name,
                 bp.breed as pet_breed,
-                bp.image_url as pet_image
+                bp.image as pet_image
             FROM breeding_likes bl
             JOIN users u ON bl.user_id = u.id
             JOIN breeding_pets bp ON bl.breeding_pet_id = bp.id

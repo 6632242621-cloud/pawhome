@@ -87,7 +87,7 @@ router.post('/add', async (req, res) => {
             name, 
             age, 
             breed, 
-            image_url, 
+            image, 
             tags = [], 
             description 
         } = req.body;
@@ -95,9 +95,9 @@ router.post('/add', async (req, res) => {
         const tagsJson = JSON.stringify(tags);
 
         const [result] = await pool.query(`
-            INSERT INTO pets (user_id, name, age, breed, image_url, tags, description)
+            INSERT INTO pets (user_id, name, age, breed, image, tags, description)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [user_id, name, age, breed, image_url, tagsJson, description]);
+        `, [user_id, name, age, breed, image, tagsJson, description]);
 
         res.json({
             success: true,
@@ -122,7 +122,7 @@ router.put('/update/:id', async (req, res) => {
             name, 
             age, 
             breed, 
-            image_url, 
+            image, 
             tags = [], 
             description, 
             status 
@@ -135,12 +135,12 @@ router.put('/update/:id', async (req, res) => {
                 name = ?,
                 age = ?,
                 breed = ?,
-                image_url = ?,
+                image = ?,
                 tags = ?,
                 description = ?,
                 status = ?
             WHERE id = ?
-        `, [name, age, breed, image_url, tagsJson, description, status, petId]);
+        `, [name, age, breed, image, tagsJson, description, status, petId]);
 
         res.json({
             success: true,

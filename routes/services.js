@@ -58,16 +58,16 @@ router.post('/add', async (req, res) => {
             user_id, 
             name, 
             type = 'other', 
-            image_url, 
+            image, 
             price, 
             description, 
             category 
         } = req.body;
 
         const [result] = await pool.query(`
-            INSERT INTO services (user_id, name, type, image_url, price, description, category)
+            INSERT INTO services (user_id, name, type, image, price, description, category)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [user_id, name, type, image_url, price, description, category]);
+        `, [user_id, name, type, image, price, description, category]);
 
         res.json({
             success: true,
@@ -91,7 +91,7 @@ router.put('/update/:id', async (req, res) => {
         const { 
             name, 
             type = 'other', 
-            image_url, 
+            image, 
             price, 
             description, 
             category 
@@ -101,12 +101,12 @@ router.put('/update/:id', async (req, res) => {
             UPDATE services SET
                 name = ?,
                 type = ?,
-                image_url = ?,
+                image = ?,
                 price = ?,
                 description = ?,
                 category = ?
             WHERE id = ?
-        `, [name, type, image_url, price, description, category, serviceId]);
+        `, [name, type, image, price, description, category, serviceId]);
 
         res.json({
             success: true,
