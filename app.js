@@ -2893,20 +2893,10 @@ function showAddPetModal() {
 // Setup image preview
 function setupImagePreview() {
     const fileInput = document.getElementById('petImageFile');
-    const urlInput = document.getElementById('petImageUrl');
-    const preview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
     
-    // File input change
     if (fileInput) {
         fileInput.removeEventListener('change', handleFilePreview);
         fileInput.addEventListener('change', handleFilePreview);
-    }
-    
-    // URL input change
-    if (urlInput) {
-        urlInput.removeEventListener('input', handleUrlPreview);
-        urlInput.addEventListener('input', handleUrlPreview);
     }
 }
 
@@ -2922,19 +2912,6 @@ function handleFilePreview(event) {
             preview.style.display = 'block';
         };
         reader.readAsDataURL(file);
-    } else {
-        preview.style.display = 'none';
-    }
-}
-
-function handleUrlPreview(event) {
-    const url = event.target.value;
-    const preview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
-    
-    if (url && url.startsWith('http')) {
-        previewImg.src = url;
-        preview.style.display = 'block';
     } else {
         preview.style.display = 'none';
     }
@@ -2964,7 +2941,6 @@ async function editPet(petId) {
             document.getElementById('petHealthStatus').value = pet.health_status || '';
             document.getElementById('petLocation').value = pet.location || '';
             document.getElementById('petContactPhone').value = pet.contact_phone || '';
-            document.getElementById('petImageUrl').value = pet.image || '';
             document.getElementById('petTags').value = Array.isArray(pet.tags) ? pet.tags.join(', ') : '';
             document.getElementById('petDescription').value = pet.description || '';
             document.getElementById('petStatus').value = pet.status || 'available';
@@ -2995,9 +2971,14 @@ async function handleSavePet(event) {
         .filter(t => t);
     
     try {
-        // Check if user uploaded a file
         const imageFile = document.getElementById('petImageFile').files[0];
-        let imageUrl = document.getElementById('petImageUrl').value;
+        let imageUrl = null;
+        
+        // For new pets: require image file
+        if (!petId && !imageFile) {
+            alert('กรุณาเลือกรูปภาพสัตว์เลี้ยง');
+            return;
+        }
         
         // Upload image if file selected
         if (imageFile) {
@@ -3013,15 +2994,11 @@ async function handleSavePet(event) {
             
             if (uploadResult.success) {
                 imageUrl = uploadResult.imageUrl;
+                console.log('✅ Image uploaded:', imageUrl);
             } else {
                 alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' + uploadResult.message);
                 return;
             }
-        }
-        
-        if (!imageUrl) {
-            alert('กรุณาเลือกรูปภาพหรือใส่ URL รูปภาพ');
-            return;
         }
         
         const petData = {

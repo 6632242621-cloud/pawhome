@@ -669,11 +669,8 @@
                 </div>
                 <div class="form-group">
                     <label>รูปภาพสัตว์เลี้ยง</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="file" id="petImageFile" accept="image/*" style="flex: 1;">
-                        <span style="color: #95a5a6;">หรือ</span>
-                        <input type="url" id="petImageUrl" placeholder="URL รูปภาพ" style="flex: 1;">
-                    </div>
+                    <input type="file" id="petImageFile" accept="image/*" required>
+                    <small style="color: #95a5a6;">รองรับไฟล์: JPG, PNG, GIF, WebP (ไม่เกิน 5MB)</small>
                     <div id="imagePreview" style="margin-top: 10px; display: none;">
                         <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; object-fit: cover;">
                     </div>
