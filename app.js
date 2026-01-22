@@ -1601,13 +1601,18 @@ async function loadPetsFromAPI() {
         const viewedResult = await viewedResponse.json();
         const viewedPets = viewedResult.success ? viewedResult.viewed_pet_ids : [];
         
-        // ดึงข้อมูล pets ทั้งหมด
-        const response = await fetch(`${API_BASE_URL}/pets/list`);
+        // ดึงข้อมูล pets ทั้งหมด (ยกเว้นของตัวเอง)
+        const response = await fetch(`${API_BASE_URL}/pets/list?exclude_user_id=${currentUserId}`);
         const result = await response.json();
         
         if (result.success && result.pets) {
-            // กรองเฉพาะสัตว์ที่ยังไม่เคยกด
-            const filteredPets = result.pets.filter(pet => !viewedPets.includes(pet.id));
+            // กรองสัตว์ที่:
+            // 1. ยังไม่เคยดูแล้ว
+            // 2. ไม่ใช่สัตว์เลี้ยงของตัวเอง
+            const filteredPets = result.pets.filter(pet => 
+                !viewedPets.includes(pet.id) && 
+                pet.user_id !== currentUserId
+            );
             
             petFinderData = filteredPets.map(pet => {
                 // Validate image URL
@@ -1908,7 +1913,10 @@ async function loadBreedingPets() {
         console.log('Breeding API result:', result);
         
         if (result.success && result.data) {
-            breedingPets = result.data.map(pet => ({
+            // กรองสัตว์เลี้ยงของตัวเองออก (ถ้า API ส่งมา)
+            const filteredPets = result.data.filter(pet => pet.user_id !== currentUserId);
+            
+            breedingPets = filteredPets.map(pet => ({
                 id: pet.id,
                 name: pet.name,
                 age: pet.age,

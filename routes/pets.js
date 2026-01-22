@@ -57,10 +57,12 @@ router.post('/upload-image', upload.single('petImage'), (req, res) => {
     }
 });
 
-// ดึงรายการสัตว์เลี้ยงทั้งหมด
+// ดึงรายการสัตว์เลี้ยงทั้งหมด (รองรับ filter ตาม user_id)
 router.get('/list', async (req, res) => {
     try {
-        const [pets] = await pool.query(`
+        const excludeUserId = req.query.exclude_user_id; // ยกเว้นสัตว์ของ user นี้
+        
+        let query = `
             SELECT 
                 p.*,
                 u.username as caregiver_name,
@@ -69,8 +71,17 @@ router.get('/list', async (req, res) => {
             FROM pets p
             LEFT JOIN users u ON p.user_id = u.id
             WHERE p.status = 'available'
-            ORDER BY p.created_at DESC
-        `);
+        `;
+        
+        const params = [];
+        if (excludeUserId) {
+            query += ' AND p.user_id != ?';
+            params.push(excludeUserId);
+        }
+        
+        query += ' ORDER BY p.created_at DESC';
+        
+        const [pets] = await pool.query(query, params);
 
         // แปลง JSON tags เป็น array
         const petsWithTags = pets.map(pet => ({
