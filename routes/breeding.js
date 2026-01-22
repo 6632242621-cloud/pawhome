@@ -313,10 +313,11 @@ router.post('/accept', async (req, res) => {
         // สร้าง match ใหม่
         const [matchResult] = await pool.query(`
             INSERT INTO matches (user1_id, user2_id, breeding_pet1_id, match_type, status)
-            VALUES (?, ?, ?, 'breeding', 'active')
+            VALUES (?, ?, ?, 'breeding', 'matched')
+            RETURNING id
         `, [owner_user_id, liker_user_id, breeding_pet_id]);
 
-        const matchId = matchResult.insertId;
+        const matchId = matchResult[0].id;
 
         // อัพเดต like status
         await pool.query(

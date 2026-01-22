@@ -3613,10 +3613,25 @@ async function handleAcceptLike() {
         const result = await response.json();
         
         if (result.success) {
-            alert('Match สำเร็จ! ตอนนี้คุณสามารถแชทกันได้แล้ว');
             closeLikeDetailModal();
             await loadNotificationCount();
+            
+            // เปิดหน้า matches และโหลดข้อมูล
             showPage('matches');
+            await loadMatches(currentLikeData.likeType === 'breeding' ? 'breeding' : 'pet_finder');
+            
+            // เปิดแชทอัตโนมัติถ้ามี match_id
+            if (result.match_id) {
+                // หา match card และเปิดแชท
+                setTimeout(() => {
+                    const matchCard = document.querySelector(`[data-match-id="${result.match_id}"]`);
+                    if (matchCard) {
+                        matchCard.click();
+                    }
+                }, 500);
+            }
+            
+            alert(`🎉 Match สำเร็จ! ตอนนี้คุณสามารถแชทกับ ${currentLikeData.liker_name} ได้แล้ว`);
         } else {
             alert(result.message || 'เกิดข้อผิดพลาด');
         }
