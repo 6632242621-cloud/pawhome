@@ -96,7 +96,7 @@ router.post('/like', async (req, res) => {
         const { user_id, breeding_pet_id } = req.body;
 
         // บันทึกการ like
-        await pool.query(`
+        const [result] = await pool.query(`
             INSERT INTO breeding_likes (user_id, breeding_pet_id, status)
             VALUES (?, ?, 'like')
             ON DUPLICATE KEY UPDATE status = 'like'

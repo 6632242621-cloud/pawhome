@@ -16,7 +16,10 @@ node add_profile_columns.js
 echo "🐾 Adding pet columns..."
 node add_pet_columns.js
 
-echo "🖼️ Fixing pet images..."
+echo "� Adding notification columns..."
+node add_notification_columns.js || echo "⚠️ Notification columns may already exist"
+
+echo "�🖼️ Fixing pet images..."
 node fix_pet_images.js || echo "⚠️ Fix images failed (may be no invalid images)"
 
 echo "✅ Build complete!"

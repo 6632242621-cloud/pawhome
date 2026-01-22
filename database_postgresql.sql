@@ -121,9 +121,12 @@ CREATE TABLE IF NOT EXISTS notifications (
     type VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT,
+    link VARCHAR(100),
     related_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     related_pet_id INTEGER REFERENCES pets(id) ON DELETE SET NULL,
     related_breeding_pet_id INTEGER REFERENCES breeding_pets(id) ON DELETE SET NULL,
+    related_like_id INTEGER,
+    related_breeding_like_id INTEGER,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
