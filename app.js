@@ -1019,14 +1019,11 @@ async function showActionModal(actionName) {
             title: 'เพิ่มโปรไฟล์สัตว์เลี้ยง',
             icon: 'fa-plus-circle',
             content: `
-                <p>ลงประกาศหาบ้านให้น้องๆ</p>
-                <form style="margin-top: 20px;">
-                    <input type="text" placeholder="ชื่อสัตว์เลี้ยง" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 10px; margin-bottom: 10px;">
-                    <input type="text" placeholder="พันธุ์" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 10px; margin-bottom: 10px;">
-                    <input type="number" placeholder="อายุ (ปี)" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 10px; margin-bottom: 10px;">
-                    <textarea placeholder="รายละเอียด" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 10px; height: 80px; margin-bottom: 10px;"></textarea>
-                    <button type="button" onclick="alert('บันทึกข้อมูลเรียบร้อย!')" style="width: 100%; padding: 15px; background: #FF6B6B; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">บันทึก</button>
-                </form>
+                <p style="margin-bottom: 20px;">ลงประกาศหาบ้านให้น้องๆ</p>
+                <button onclick="closeActionModal(); showAddPetModal();" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                    <i class="fas fa-plus-circle"></i> เพิ่มสัตว์เลี้ยงใหม่
+                </button>
+                <p style="margin-top: 15px; text-align: center; color: #95a5a6; font-size: 14px;">กรอกข้อมูลครบถ้วนเพื่อเพิ่มโอกาสหาบ้านให้น้องๆ</p>
             `
         },
         'myPets': {
