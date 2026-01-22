@@ -2785,9 +2785,9 @@ async function loadAdminPets() {
             tbody.innerHTML = result.pets.map(pet => `
                 <tr>
                     <td>${pet.id}</td>
-                    <td><img src="${pet.image_url}" alt="${pet.name}"></td>
+                    <td><img src="${pet.image || 'https://via.placeholder.com/80?text=No+Image'}" alt="${pet.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/80?text=No+Image'"></td>
                     <td>${pet.name}</td>
-                    <td>${pet.age}</td>
+                    <td>${pet.age} ปี</td>
                     <td>${pet.breed}</td>
                     <td><span class="status-badge ${pet.status}">${pet.status}</span></td>
                     <td>${pet.caregiver_name || '-'}</td>
