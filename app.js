@@ -839,10 +839,10 @@ async function showActionModal(actionName) {
             if (result.success && result.pets && result.pets.length > 0) {
                 myPetsHtml = result.pets.map(pet => `
                     <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px;">
-                        <img src="${pet.image_url}" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover;">
+                        <img src="${pet.image || 'https://via.placeholder.com/150?text=No+Image'}" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                         <div style="flex: 1;">
                             <strong style="font-size: 16px;">${pet.name}</strong><br>
-                            <small style="color: #7f8c8d;">${pet.breed} • ${pet.age}</small><br>
+                            <small style="color: #7f8c8d;">${pet.breed} • ${pet.age} ปี</small><br>
                             <span style="display: inline-block; margin-top: 5px; padding: 4px 12px; background: ${pet.status === 'available' ? '#4ECDC4' : '#95a5a6'}; color: white; border-radius: 12px; font-size: 12px;">
                                 ${pet.status === 'available' ? 'เปิดหาบ้าน' : pet.status === 'adopted' ? 'หาบ้านแล้ว' : 'ปิดประกาศ'}
                             </span>
