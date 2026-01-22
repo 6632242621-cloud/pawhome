@@ -224,20 +224,26 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 2px;
     cursor: pointer;
     color: #95a5a6;
     transition: all 0.3s;
-    padding: 10px 20px;
+    padding: 8px 4px;
     position: relative;
+    flex: 1;
+    min-width: 0;
 }
 
 .nav-btn i {
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .nav-btn span {
-    font-size: 12px;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .nav-btn.active {
@@ -247,6 +253,22 @@ body {
 .nav-btn:hover {
     color: var(--primary-color);
     transform: translateY(-2px);
+}
+
+/* Extra Small Mobile - Hide text, show icons only */
+@media (max-width: 380px) {
+    .nav-btn {
+        padding: 10px 2px;
+        gap: 0;
+    }
+    
+    .nav-btn span {
+        display: none;
+    }
+    
+    .nav-btn i {
+        font-size: 22px;
+    }
 }
 
 /* Desktop Nav Button Styling */
