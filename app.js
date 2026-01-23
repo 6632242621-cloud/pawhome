@@ -3593,6 +3593,18 @@ function initNotifications() {
 let currentLikeData = null;
 
 async function showLikeDetailModal(likeId, likeType) {
+    // เปิด modal ทันที
+    const modal = document.getElementById('likeDetailModal');
+    modal.style.display = 'flex';
+    
+    // แสดง loading
+    document.getElementById('likeDetailContent').innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #FF6B6B; margin-bottom: 20px;"></i>
+            <p style="color: #7f8c8d;">กำลังโหลดข้อมูล...</p>
+        </div>
+    `;
+    
     try {
         const endpoint = likeType === 'breeding' 
             ? `${API_BASE_URL}/breeding/like-detail/${likeId}`
@@ -3659,13 +3671,15 @@ async function showLikeDetailModal(likeId, likeType) {
                 </div>
             `;
             
+            // ปิด notifications modal หลังจากโหลดข้อมูลสำเร็จ
             closeNotificationsModal();
-            document.getElementById('likeDetailModal').style.display = 'flex';
         } else {
+            modal.style.display = 'none';
             alert('ไม่สามารถโหลดข้อมูลได้');
         }
     } catch (error) {
         console.error('Error loading like detail:', error);
+        modal.style.display = 'none';
         alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
     }
 }
