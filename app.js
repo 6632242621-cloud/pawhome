@@ -3400,7 +3400,7 @@ async function loadNotifications() {
                              data-type="received_like"
                              data-like-id="${item.like_id}"
                              data-like-type="${item.like_type}"
-                             onclick="handleReceivedLikeClick(${item.like_id}, '${item.like_type}')"
+                             onclick="handleReceivedLikeClick(event, ${item.like_id}, '${item.like_type}')"
                              style="cursor: pointer;">
                             <div class="notification-header">
                                 <div class="notification-title">
@@ -3482,7 +3482,9 @@ function formatNotificationTime(dateString) {
 }
 
 // Handle received like click
-async function handleReceivedLikeClick(likeId, likeType) {
+async function handleReceivedLikeClick(event, likeId, likeType) {
+    event.preventDefault();
+    event.stopPropagation();
     try {
         await showLikeDetailModal(likeId, likeType);
     } catch (error) {
