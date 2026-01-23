@@ -3448,19 +3448,22 @@ async function loadNotifications() {
                 e.stopPropagation();
                 
                 const type = notifItem.dataset.type;
+                const likeId = notifItem.dataset.likeId;
+                const likeType = notifItem.dataset.likeType;
+                
                 console.log('🔔 Notification clicked, type:', type);
                 console.log('🔔 Dataset:', notifItem.dataset);
                 
-                if (type === 'received_like') {
-                    // Handle received like click - open detail modal only
-                    console.log('❤️ Handling received like...');
-                    const likeId = notifItem.dataset.likeId;
-                    const likeType = notifItem.dataset.likeType;
+                // Check if it's a like notification (either received_like or pet_like/breeding_like with likeId)
+                if (type === 'received_like' || 
+                    ((type === 'pet_like' || type === 'breeding_like') && likeId && likeType)) {
+                    // Handle like notification - open detail modal only
+                    console.log('❤️ Handling like notification...');
                     console.log('❤️ Like ID:', likeId, 'Type:', likeType);
                     if (likeId && likeType) {
                         handleReceivedLikeClick(likeId, likeType);
                     }
-                    return; // Stop here, don't proceed to normal notification handling
+                    return; // Stop here, don't navigate
                 } else {
                     // Handle normal notification click - allow navigation
                     console.log('📬 Handling normal notification...');
