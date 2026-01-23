@@ -289,6 +289,52 @@ router.delete('/delete/:id', async (req, res) => {
     }
 });
 
+// ดึงรายการคนที่ like สัตว์เลี้ยงของเรา (รับ Like)
+router.get('/received/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const [likes] = await pool.query(`
+            SELECT 
+                l.id as like_id,
+                l.created_at as liked_at,
+                l.status as like_status,
+                u.id as liker_id,
+                u.username as liker_name,
+                u.email as liker_email,
+                u.profile_image as liker_image,
+                u.bio as liker_bio,
+                u.gender as liker_gender,
+                u.date_of_birth as liker_dob,
+                u.location as liker_location,
+                u.phone as liker_phone,
+                bp.id as breeding_pet_id,
+                bp.name as pet_name,
+                bp.breed as pet_breed,
+                bp.image as pet_image,
+                bp.age as pet_age
+            FROM breeding_likes l
+            JOIN breeding_pets bp ON l.breeding_pet_id = bp.id
+            JOIN users u ON l.user_id = u.id
+            WHERE bp.user_id = ? 
+            AND (l.status IS NULL OR l.status = 'like')
+            ORDER BY l.created_at DESC
+        `, [userId]);
+
+        res.json({
+            success: true,
+            likes: likes
+        });
+
+    } catch (error) {
+        console.error('Get breeding received likes error:', error);
+        res.json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
+
 // Accept breeding like (สร้าง match)
 router.post('/accept', async (req, res) => {
     try {

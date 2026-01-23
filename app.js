@@ -3319,7 +3319,100 @@ async function loadNotificationCount() {
 // Show notifications modal
 function showNotifications() {
     document.getElementById('notificationsModal').style.display = 'flex';
-    loadNotifications();
+    switchNotificationTab('notifications');
+}
+
+// Switch notification tabs
+function switchNotificationTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.notification-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeTab) activeTab.classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    if (tabName === 'notifications') {
+        document.getElementById('notificationsTabContent').style.display = 'block';
+        loadNotifications();
+    } else if (tabName === 'likes') {
+        document.getElementById('likesTabContent').style.display = 'block';
+        loadReceivedLikes();
+    }
+}
+
+// Load received likes (ผู้ที่สนใจสัตว์ของเรา)
+async function loadReceivedLikes() {
+    if (!currentUserId) return;
+    
+    const listElement = document.getElementById('likesList');
+    const emptyElement = document.getElementById('likesEmpty');
+    const loadingElement = document.getElementById('likesLoading');
+    
+    listElement.style.display = 'none';
+    emptyElement.style.display = 'none';
+    loadingElement.style.display = 'block';
+    
+    try {
+        // Load both pet_finder and breeding likes
+        const [petResponse, breedingResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/likes/received/${currentUserId}`),
+            fetch(`${API_BASE_URL}/breeding/received/${currentUserId}`)
+        ]);
+        
+        const petResult = await petResponse.json();
+        const breedingResult = await breedingResponse.json();
+        
+        const petLikes = petResult.success ? petResult.likes : [];
+        const breedingLikes = breedingResult.success ? breedingResult.likes : [];
+        
+        // Combine and sort by date
+        const allLikes = [
+            ...petLikes.map(l => ({ ...l, like_type: 'pet_finder' })),
+            ...breedingLikes.map(l => ({ ...l, like_type: 'breeding' }))
+        ].sort((a, b) => new Date(b.liked_at) - new Date(a.liked_at));
+        
+        loadingElement.style.display = 'none';
+        
+        if (allLikes.length > 0) {
+            listElement.innerHTML = allLikes.map(like => `
+                <div class="like-card" onclick="showLikeDetailModal(${like.like_id}, '${like.like_type}')" style="cursor: pointer; padding: 15px; border-bottom: 1px solid #f0f0f0; transition: background 0.3s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img src="${like.liker_image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'}" 
+                             alt="${like.liker_name}"
+                             style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #FF6B6B;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; color: #2c3e50;">
+                                ${like.liker_name}
+                            </div>
+                            <div style="font-size: 14px; color: #7f8c8d; margin-top: 3px;">
+                                สนใจ ${like.pet_name} (${like.pet_breed})
+                            </div>
+                            <div style="font-size: 12px; color: #95a5a6; margin-top: 3px;">
+                                <i class="far fa-clock"></i> ${formatNotificationTime(like.liked_at)}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #bdc3c7;"></i>
+                    </div>
+                </div>
+            `).join('');
+            listElement.style.display = 'block';
+            
+            // Update badge
+            document.getElementById('likesBadge').textContent = allLikes.length;
+            document.getElementById('likesBadge').style.display = allLikes.length > 0 ? 'inline-block' : 'none';
+        } else {
+            emptyElement.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading received likes:', error);
+        loadingElement.style.display = 'none';
+        emptyElement.style.display = 'block';
+    }
 }
 
 // Close notifications modal

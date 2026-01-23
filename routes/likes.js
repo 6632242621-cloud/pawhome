@@ -154,7 +154,51 @@ router.get('/viewed/:userId', async (req, res) => {
         });
     }
 });
+// ดึงรายการคนที่ like สัตว์เลี้ยงของเรา (รับ Like)
+router.get('/received/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
 
+        const [likes] = await pool.query(`
+            SELECT 
+                l.id as like_id,
+                l.created_at as liked_at,
+                l.status as like_status,
+                u.id as liker_id,
+                u.username as liker_name,
+                u.email as liker_email,
+                u.profile_image as liker_image,
+                u.bio as liker_bio,
+                u.gender as liker_gender,
+                u.date_of_birth as liker_dob,
+                u.location as liker_location,
+                u.phone as liker_phone,
+                p.id as pet_id,
+                p.name as pet_name,
+                p.breed as pet_breed,
+                p.image as pet_image,
+                p.age as pet_age
+            FROM pet_likes l
+            JOIN pets p ON l.pet_id = p.id
+            JOIN users u ON l.user_id = u.id
+            WHERE p.user_id = ? 
+            AND l.status IS NULL OR l.status = 'liked'
+            ORDER BY l.created_at DESC
+        `, [userId]);
+
+        res.json({
+            success: true,
+            likes: likes
+        });
+
+    } catch (error) {
+        console.error('Get received likes error:', error);
+        res.json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
 // ดึงรายการ pets ที่ user ได้ like
 router.get('/my-likes/:userId', async (req, res) => {
     try {

@@ -2148,6 +2148,61 @@ input:checked + .slider:before {
     transition: all 0.2s ease;
 }
 
+/* Notification Tabs */
+.notification-tab {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7f8c8d;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-tab:hover {
+    background: #f8f9fa;
+    color: #2c3e50;
+}
+
+.notification-tab.active {
+    color: #FF6B6B;
+    border-bottom-color: #FF6B6B;
+}
+
+.tab-badge {
+    display: inline-block;
+    background: #FF6B6B;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.like-card {
+    cursor: pointer;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.3s;
+}
+
+.like-card:hover {
+    background: #f8f9fa;
+}
+
 .btn-text:hover {
     background: #fff5f5;
     border-radius: 5px;
