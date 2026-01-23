@@ -926,53 +926,27 @@
                 </button>
             </div>
             
-            <!-- Tabs -->
-            <div style="display: flex; border-bottom: 2px solid #eee;">
-                <button class="notification-tab active" data-tab="notifications" onclick="switchNotificationTab('notifications')">
-                    <i class="fas fa-bell"></i> แจ้งเตือน
-                    <span id="notificationsBadge" class="tab-badge" style="display: none;">0</span>
+            <div class="modal-actions" style="padding: 10px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn-text" onclick="markAllNotificationsRead()" id="markAllReadBtn">
+                    <i class="fas fa-check-double"></i> อ่านทั้งหมด
                 </button>
-                <button class="notification-tab" data-tab="likes" onclick="switchNotificationTab('likes')">
-                    <i class="fas fa-heart"></i> ผู้สนใจ
-                    <span id="likesBadge" class="tab-badge" style="display: none;">0</span>
-                </button>
+                <label style="font-size: 14px;">
+                    <input type="checkbox" id="showUnreadOnly" onchange="loadNotifications()"> แสดงเฉพาะที่ยังไม่อ่าน
+                </label>
             </div>
             
-            <!-- Notifications Tab Content -->
-            <div id="notificationsTabContent" class="tab-content active">
-                <div class="modal-actions" style="padding: 10px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                    <button class="btn-text" onclick="markAllNotificationsRead()" id="markAllReadBtn">
-                        <i class="fas fa-check-double"></i> อ่านทั้งหมด
-                    </button>
-                    <label style="font-size: 14px;">
-                        <input type="checkbox" id="showUnreadOnly" onchange="loadNotifications()"> แสดงเฉพาะที่ยังไม่อ่าน
-                    </label>
+            <div class="modal-body">
+                <div id="notificationsList" style="padding: 0; max-height: 400px; overflow-y: auto;">
+                    <!-- Notifications will be displayed here -->
                 </div>
-                
-                <div class="modal-body">
-                    <div id="notificationsList" style="padding: 0; max-height: 400px; overflow-y: auto;">
-                        <!-- Notifications will be displayed here -->
-                    </div>
-                    <div id="notificationsEmpty" style="display: none; text-align: center; padding: 40px;">
-                        <i class="fas fa-bell-slash" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
-                        <p style="color: #666;">ไม่มีการแจ้งเตือน</p>
-                    </div>
-                    <div id="notificationsLoading" style="display: none; text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #FF6B6B;"></i>
-                    </div>
+                <div id="notificationsEmpty" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-bell-slash" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                    <p style="color: #666;">ไม่มีการแจ้งเตือน</p>
+                </div>
+                <div id="notificationsLoading" style="display: none; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #FF6B6B;"></i>
                 </div>
             </div>
-            
-            <!-- Likes Tab Content -->
-            <div id="likesTabContent" class="tab-content" style="display: none;">
-                <div class="modal-body">
-                    <div id="likesList" style="padding: 0; max-height: 400px; overflow-y: auto;">
-                        <!-- Likes will be displayed here -->
-                    </div>
-                    <div id="likesEmpty" style="display: none; text-align: center; padding: 40px;">
-                        <i class="fas fa-heart-broken" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
-                        <p style="color: #666;">ยังไม่มีใครสนใจสัตว์เลี้ยงของคุณ</p>
-                    </div>
                     <div id="likesLoading" style="display: none; text-align: center; padding: 40px;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #FF6B6B;"></i>
                     </div>
