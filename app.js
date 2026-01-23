@@ -3444,17 +3444,21 @@ async function loadNotifications() {
                 const notifItem = e.target.closest('.notification-item');
                 if (!notifItem) return;
                 
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const type = notifItem.dataset.type;
                 
                 if (type === 'received_like') {
-                    // Handle received like click
+                    // Handle received like click - open detail modal only
                     const likeId = notifItem.dataset.likeId;
                     const likeType = notifItem.dataset.likeType;
                     if (likeId && likeType) {
                         handleReceivedLikeClick(likeId, likeType);
                     }
+                    return; // Stop here, don't proceed to normal notification handling
                 } else {
-                    // Handle normal notification click
+                    // Handle normal notification click - allow navigation
                     const notifId = notifItem.dataset.notifId;
                     const link = notifItem.dataset.link;
                     if (notifId) {
