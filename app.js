@@ -3400,7 +3400,6 @@ async function loadNotifications() {
                              data-type="received_like"
                              data-like-id="${item.like_id}"
                              data-like-type="${item.like_type}"
-                             onclick="handleReceivedLikeClick(event, ${item.like_id}, '${item.like_type}')"
                              style="cursor: pointer;">
                             <div class="notification-header">
                                 <div class="notification-title">
@@ -3422,9 +3421,10 @@ async function loadNotifications() {
                     return `
                         <div class="notification-item ${item.is_read ? '' : 'unread'}" 
                              data-type="${item.type}"
+                             data-notif-id="${item.id}"
+                             data-link="${item.link || ''}"
                              data-like-id="${item.related_like_id || ''}"
-                             data-like-type="${item.type === 'pet_like' ? 'pet_finder' : item.type === 'breeding_like' ? 'breeding' : ''}"
-                             onclick="handleNotificationClick(event, ${item.id}, '${item.link || ''}')">
+                             data-like-type="${item.type === 'pet_like' ? 'pet_finder' : item.type === 'breeding_like' ? 'breeding' : ''}">
                             <div class="notification-header">
                                 <div class="notification-title">
                                     <i class="notification-icon fas fa-${getNotificationIcon(item.type)}"></i>
@@ -3438,6 +3438,30 @@ async function loadNotifications() {
                 }
             }).join('');
             listElement.style.display = 'block';
+            
+            // Add event delegation for notification clicks
+            listElement.onclick = (e) => {
+                const notifItem = e.target.closest('.notification-item');
+                if (!notifItem) return;
+                
+                const type = notifItem.dataset.type;
+                
+                if (type === 'received_like') {
+                    // Handle received like click
+                    const likeId = notifItem.dataset.likeId;
+                    const likeType = notifItem.dataset.likeType;
+                    if (likeId && likeType) {
+                        handleReceivedLikeClick(likeId, likeType);
+                    }
+                } else {
+                    // Handle normal notification click
+                    const notifId = notifItem.dataset.notifId;
+                    const link = notifItem.dataset.link;
+                    if (notifId) {
+                        handleNotificationClick(e, parseInt(notifId), link);
+                    }
+                }
+            };
             
             // Update mark all read button
             const hasUnread = notifications.some(n => !n.is_read);
@@ -3482,9 +3506,7 @@ function formatNotificationTime(dateString) {
 }
 
 // Handle received like click
-async function handleReceivedLikeClick(event, likeId, likeType) {
-    event.preventDefault();
-    event.stopPropagation();
+async function handleReceivedLikeClick(likeId, likeType) {
     try {
         await showLikeDetailModal(likeId, likeType);
     } catch (error) {
