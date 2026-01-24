@@ -2,38 +2,29 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Configure multer for profile image upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = 'uploads/profiles';
-        if (!fs.existsSync(uploadDir)){
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'demo',
+    api_key: process.env.CLOUDINARY_API_KEY || 'demo',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'demo'
+});
+
+// Configure Cloudinary storage for profile images
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'pawhome/profiles',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }]
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('รองรับเฉพาะไฟล์รูปภาพ (jpg, jpeg, png, gif) เท่านั้น'));
-        }
-    }
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 // Get user profile
@@ -122,43 +113,27 @@ router.post('/profile/:userId/image', upload.single('profile_image'), async (req
             });
         }
         
-        // Get old profile image
-        const [users] = await pool.query('SELECT profile_image FROM users WHERE id = ?', [userId]);
+        // Cloudinary returns the uploaded image URL
+        const imageUrl = req.file.path;
         
-        if (users.length === 0) {
-            // Delete uploaded file if user not found
-            fs.unlinkSync(req.file.path);
-            return res.json({ 
-                success: false, 
-                message: 'ไม่พบผู้ใช้' 
-            });
-        }
+        console.log('✅ Profile image uploaded to Cloudinary:', imageUrl);
         
-        // Delete old profile image if exists
-        const oldImage = users[0].profile_image;
-        if (oldImage && fs.existsSync(oldImage)) {
-            fs.unlinkSync(oldImage);
-        }
-        
-        // Update database with new image path
-        const imagePath = req.file.path.replace(/\\/g, '/');
+        // Update database with Cloudinary URL
         await pool.query(
             'UPDATE users SET profile_image = ? WHERE id = ?',
-            [imagePath, userId]
+            [imageUrl, userId]
         );
         
         res.json({ 
             success: true, 
             message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
-            profile_image: imagePath
+        res.json({ 
+            success: true, 
+            message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
+            profile_image: imageUrl
         });
     } catch (error) {
         console.error('Error uploading profile image:', error);
-        
-        // Delete uploaded file on error
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         
         res.status(500).json({ 
             success: false, 

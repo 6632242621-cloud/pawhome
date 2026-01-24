@@ -3642,9 +3642,9 @@ async function showLikeDetailModal(likeId, likeType) {
             const age = like.liker_dob ? calculateAge(like.liker_dob) : 'ไม่ระบุ';
             const gender = like.liker_gender === 'male' ? 'ชาย' : like.liker_gender === 'female' ? 'หญิง' : 'ไม่ระบุ';
             
-            // สร้าง image src - ใช้ profile_image ถ้ามี ไม่เช่นนั้นใช้ placeholder
+            // สร้าง image src - ใช้ Cloudinary URL โดยตรง หรือ placeholder
             const imageSrc = (like.liker_image && like.liker_image !== 'NULL') 
-                ? `/${like.liker_image}` 
+                ? (like.liker_image.startsWith('http') ? like.liker_image : `/${like.liker_image}`)
                 : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200';
             
             document.getElementById('likeDetailContent').innerHTML = `
@@ -3865,7 +3865,8 @@ async function loadUserProfile() {
                     // Hide icon and show image
                     if (icon) icon.style.display = 'none';
                     const img = document.createElement('img');
-                    img.src = `/${user.profile_image}`;
+                    // Use Cloudinary URL directly if it starts with http, otherwise add /
+                    img.src = user.profile_image.startsWith('http') ? user.profile_image : `/${user.profile_image}`;
                     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 50%;';
                     img.onerror = function() {
                         // If image fails to load, show icon
@@ -3916,7 +3917,7 @@ function showEditProfile() {
     // Show current profile image
     if (currentUser.profile_image) {
         const preview = document.getElementById('profileImagePreview');
-        preview.src = `/${currentUser.profile_image}`;
+        preview.src = currentUser.profile_image.startsWith('http') ? currentUser.profile_image : `/${currentUser.profile_image}`;
         preview.style.display = 'block';
     }
 }
