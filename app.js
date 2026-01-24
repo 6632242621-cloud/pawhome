@@ -3409,7 +3409,7 @@ async function loadNotifications() {
                                 <div class="notification-time">${formatNotificationTime(item.created_at)}</div>
                             </div>
                             <div class="notification-message" style="display: flex; align-items: center; gap: 10px;">
-                                <img src="${item.liker_image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40'}" 
+                                <img src="${item.liker_image || 'https://ui-avatars.com/api/?name=User&background=random&size=40'}" 
                                      alt="${item.liker_name}"
                                      style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #FF6B6B;">
                                 <span>${item.message}</span>
@@ -3645,14 +3645,14 @@ async function showLikeDetailModal(likeId, likeType) {
             // สร้าง image src - ใช้ Cloudinary URL โดยตรง หรือ placeholder
             const imageSrc = (like.liker_image && like.liker_image !== 'NULL') 
                 ? (like.liker_image.startsWith('http') ? like.liker_image : `/${like.liker_image}`)
-                : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200';
+                : 'https://ui-avatars.com/api/?name=User&background=random&size=200';
             
             document.getElementById('likeDetailContent').innerHTML = `
                 <div class="like-detail-card">
                     <img src="${imageSrc}" 
                          alt="${like.liker_name}" 
                          class="like-detail-image"
-                         onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'">
+                         onerror="this.src='https://ui-avatars.com/api/?name=User&background=random&size=200'">
                     <div class="like-detail-info">
                         <div class="like-detail-name">${like.liker_name}</div>
                         <div class="like-detail-meta">
