@@ -22,11 +22,13 @@ router.post('/add', async (req, res) => {
             });
         }
 
-        // บันทึก like
+        // บันทึก like (ใช้ RETURNING id สำหรับ PostgreSQL)
         const [result] = await pool.query(
-            'INSERT INTO pet_likes (user_id, pet_id) VALUES (?, ?)',
+            'INSERT INTO pet_likes (user_id, pet_id) VALUES (?, ?) RETURNING id',
             [user_id, pet_id]
         );
+        
+        const likeId = result[0]?.id;
 
         // ดึงข้อมูลสัตว์เลี้ยงและเจ้าของ
         const [petInfo] = await pool.query(
@@ -54,7 +56,7 @@ router.post('/add', async (req, res) => {
                     link: 'pet-finder',
                     related_user_id: user_id,
                     related_pet_id: pet_id,
-                    related_like_id: result.insertId
+                    related_like_id: likeId
                 });
             }
             
