@@ -184,7 +184,7 @@ router.get('/received/:userId', async (req, res) => {
             JOIN pets p ON l.pet_id = p.id
             JOIN users u ON l.user_id = u.id
             WHERE p.user_id = ? 
-            AND l.status IS NULL OR l.status = 'liked'
+            AND (l.status IS NULL OR l.status = 'pending')
             ORDER BY l.created_at DESC
         `, [userId]);
 
@@ -272,7 +272,7 @@ router.post('/accept', async (req, res) => {
 
         const matchId = matchResult[0].id;
 
-        // อัพเดต like status
+        // อัพเดต like status เป็น accepted
         await pool.query(
             'UPDATE pet_likes SET status = ? WHERE id = ?',
             ['accepted', like_id]
