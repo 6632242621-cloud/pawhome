@@ -3440,7 +3440,7 @@ async function loadNotifications() {
             listElement.style.display = 'block';
             
             // Add event delegation for notification clicks
-            listElement.onclick = (e) => {
+            listElement.onclick = async (e) => {
                 const notifItem = e.target.closest('.notification-item');
                 if (!notifItem) return;
                 
@@ -3461,6 +3461,16 @@ async function loadNotifications() {
                     console.log('❤️ Handling like notification...');
                     console.log('❤️ Like ID:', likeId, 'Type:', likeType);
                     if (likeId && likeType) {
+                        // Mark notification as read
+                        const notifId = notifItem.dataset.notifId;
+                        if (notifId) {
+                            await fetch(`${API_BASE_URL}/notifications/mark-read/${notifId}`, {
+                                method: 'POST'
+                            });
+                            await loadNotifications();
+                            await loadNotificationCount();
+                        }
+                        // Show like detail modal
                         handleReceivedLikeClick(likeId, likeType);
                     }
                     return; // Stop here, don't navigate
