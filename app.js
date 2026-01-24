@@ -3366,8 +3366,7 @@ async function loadNotifications() {
                          data-type="${item.type}"
                          data-notif-id="${item.id}"
                          data-link="${item.link || ''}"
-                         data-like-id="${item.related_like_id || ''}"
-                         data-like-type="${item.type === 'pet_like' ? 'pet_finder' : item.type === 'breeding_like' ? 'breeding' : ''}">
+                         data-like-id="${item.related_like_id || ''}">
                         <div class="notification-header">
                             <div class="notification-title">
                                 <i class="notification-icon fas fa-${getNotificationIcon(item.type)}"></i>
@@ -3391,29 +3390,30 @@ async function loadNotifications() {
                 
                 const type = notifItem.dataset.type;
                 const likeId = notifItem.dataset.likeId;
-                const likeType = notifItem.dataset.likeType;
                 
                 console.log('🔔 Notification clicked, type:', type);
                 console.log('🔔 Dataset:', notifItem.dataset);
                 
                 // Check if it's a like notification (pet_like/breeding_like with likeId)
-                if ((type === 'pet_like' || type === 'breeding_like') && likeId && likeType) {
+                if ((type === 'pet_like' || type === 'breeding_like') && likeId) {
+                    // Determine likeType from notification type
+                    const likeType = type === 'breeding_like' ? 'breeding' : 'pet_finder';
+                    
                     // Handle like notification - open detail modal only
                     console.log('❤️ Handling like notification...');
                     console.log('❤️ Like ID:', likeId, 'Type:', likeType);
-                    if (likeId && likeType) {
-                        // Mark notification as read
-                        const notifId = notifItem.dataset.notifId;
-                        if (notifId) {
-                            await fetch(`${API_BASE_URL}/notifications/mark-read/${notifId}`, {
-                                method: 'POST'
-                            });
-                            await loadNotifications();
-                            await loadNotificationCount();
-                        }
-                        // Show like detail modal
-                        handleReceivedLikeClick(likeId, likeType);
+                    
+                    // Mark notification as read
+                    const notifId = notifItem.dataset.notifId;
+                    if (notifId) {
+                        await fetch(`${API_BASE_URL}/notifications/mark-read/${notifId}`, {
+                            method: 'POST'
+                        });
+                        await loadNotifications();
+                        await loadNotificationCount();
                     }
+                    // Show like detail modal
+                    handleReceivedLikeClick(likeId, likeType);
                     return; // Stop here, don't navigate
                 } else {
                     // Handle normal notification click - allow navigation
@@ -3494,9 +3494,10 @@ async function handleNotificationClick(event, notificationId, link) {
         if (notifElement) {
             const notifType = notifElement.dataset.type;
             const likeId = notifElement.dataset.likeId;
-            const likeType = notifElement.dataset.likeType;
             
             if ((notifType === 'pet_like' || notifType === 'breeding_like') && likeId) {
+                // Determine likeType from notification type
+                const likeType = notifType === 'breeding_like' ? 'breeding' : 'pet_finder';
                 // Show like detail modal
                 await showLikeDetailModal(likeId, likeType);
                 return;
