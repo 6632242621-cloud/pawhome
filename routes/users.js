@@ -42,7 +42,7 @@ router.get('/profile/:userId', async (req, res) => {
         const { userId } = req.params;
         
         const [users] = await pool.query(
-            'SELECT id, username, email, role, phone, location, profile_image, created_at FROM users WHERE id = ?',
+            'SELECT id, username, email, role, name, bio, date_of_birth, gender, phone, location, profile_image, created_at FROM users WHERE id = ?',
             [userId]
         );
         
