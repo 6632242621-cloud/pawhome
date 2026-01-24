@@ -3673,15 +3673,19 @@ function closeLikeDetailModal() {
 async function handleAcceptLike() {
     if (!currentLikeData) return;
     
-    const confirmMsg = `ต้องการยอมรับและเริ่มแชทกับ ${currentLikeData.liker_name} ใช่หรือไม่?`;
+    // เก็บข้อมูลที่ต้องใช้ไว้ก่อน เพราะ closeLikeDetailModal() จะเคลียร์ currentLikeData
+    const likerName = currentLikeData.liker_name;
+    const likeType = currentLikeData.likeType;
+    
+    const confirmMsg = `ต้องการยอมรับและเริ่มแชทกับ ${likerName} ใช่หรือไม่?`;
     if (!confirm(confirmMsg)) return;
     
     try {
-        const endpoint = currentLikeData.likeType === 'breeding'
+        const endpoint = likeType === 'breeding'
             ? `${API_BASE_URL}/breeding/accept`
             : `${API_BASE_URL}/likes/accept`;
         
-        const payload = currentLikeData.likeType === 'breeding' ? {
+        const payload = likeType === 'breeding' ? {
             like_id: currentLikeData.id,
             owner_user_id: currentUserId,
             liker_user_id: currentLikeData.user_id,
@@ -3705,7 +3709,7 @@ async function handleAcceptLike() {
             closeLikeDetailModal();
             await loadNotificationCount();
             
-            alert(`🎉 Match สำเร็จ! ตอนนี้คุณสามารถแชทกับ ${currentLikeData.liker_name} ได้แล้ว คุณสามารถเปิดหน้า Matches เพื่อเริ่มแชทได้`);
+            alert(`🎉 Match สำเร็จ! ตอนนี้คุณสามารถแชทกับ ${likerName} ได้แล้ว คุณสามารถเปิดหน้า Matches เพื่อเริ่มแชทได้`);
         } else {
             alert(result.message || 'เกิดข้อผิดพลาด');
         }
