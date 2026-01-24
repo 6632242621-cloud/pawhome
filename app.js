@@ -2374,25 +2374,28 @@ function renderMatches(matches, matchType) {
         const petName = match.pet_name || match.my_pet_name || 'Unknown';
         const userName = match.matched_user_name || match.match_username || 'Unknown User';
         
-        // ตรวจสอบ role และเลือกรูปที่ถูกต้อง
-        // ถ้า current user เป็นเจ้าของสัตว์ (pet_owner_id) → แสดงรูปของอีกฝ่าย (pet owner ที่สนใจ)
-        // ถ้า current user เป็น pet owner → แสดงรูปของเจ้าของสัตว์ (caregiver)
-        let userImage;
+        // แสดงรูปสัตว์สำหรับคนที่กดไลค์สัตว์
+        // แสดงรูป user สำหรับเจ้าของสัตว์
+        let displayImage;
+        let displayName;
+        
         if (match.pet_owner_id == currentUserId) {
-            // Current user คือ caregiver (เจ้าของสัตว์) → แสดงรูป pet owner ที่สนใจ
-            userImage = match.matched_user_image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200';
+            // Current user คือเจ้าของสัตว์ → แสดงรูปของคนที่สนใจ (pet owner)
+            displayImage = match.matched_user_image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200';
+            displayName = userName;
         } else {
-            // Current user คือ pet owner → แสดงรูป caregiver (เจ้าของสัตว์)
-            userImage = match.matched_user_image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200';
+            // Current user คือคนที่กดไลค์สัตว์ → แสดงรูปสัตว์
+            displayImage = match.pet_image || match.matched_user_image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200';
+            displayName = petName;
         }
         
         const unreadCount = unreadCounts[match.id] || 0;
         
         return `
-            <div class="match-card" data-match-id="${match.id}" onclick="openChat(${match.id}, '${userName}', '${userImage}', '${petName}')">
-                <img src="${userImage}" alt="${userName}">
+            <div class="match-card" data-match-id="${match.id}" onclick="openChat(${match.id}, '${displayName}', '${displayImage}', '${petName}')">
+                <img src="${displayImage}" alt="${displayName}">
                 <div class="match-info">
-                    <div class="match-name">${userName}</div>
+                    <div class="match-name">${displayName}</div>
                     <div class="match-status">${petName} • ${formatDate(match.created_at)}</div>
                 </div>
                 ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
