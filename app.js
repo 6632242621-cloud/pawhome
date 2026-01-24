@@ -1679,6 +1679,11 @@ async function initPetFinder() {
         const card = e.target.closest('.pet-card');
         if (!card) return;
         
+        // ไม่ให้ swipe ถ้ากดที่ปุ่ม flip
+        if (e.target.closest('.flip-btn') || e.target.closest('.flip-back-btn')) {
+            return;
+        }
+        
         startX = e.touches[0].clientX;
         isDragging = true;
     });
@@ -1688,6 +1693,9 @@ async function initPetFinder() {
         
         const card = document.querySelector('.pet-card');
         if (!card) return;
+        
+        // ไม่ให้ swipe ถ้า card ถูก flip อยู่
+        if (card.classList.contains('flipped')) return;
         
         currentX = e.touches[0].clientX;
         const diff = currentX - startX;
@@ -1710,6 +1718,12 @@ async function initPetFinder() {
         
         const card = document.querySelector('.pet-card');
         if (!card) return;
+        
+        // ไม่ให้ swipe ถ้า card ถูก flip อยู่
+        if (card.classList.contains('flipped')) {
+            isDragging = false;
+            return;
+        }
         
         const diff = currentX - startX;
         
