@@ -127,9 +127,6 @@ router.post('/profile/:userId/image', upload.single('profile_image'), async (req
         res.json({ 
             success: true, 
             message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
-        res.json({ 
-            success: true, 
-            message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
             profile_image: imageUrl
         });
     } catch (error) {
