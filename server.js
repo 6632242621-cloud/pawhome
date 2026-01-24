@@ -5,6 +5,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const config = require('./config/config');
 const { testConnection } = require('./config/database');
+const { runMigration } = require('./migrations/add_status_column');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -114,6 +115,9 @@ async function startServer() {
     try {
         // ทดสอบการเชื่อมต่อฐานข้อมูล
         await testConnection();
+        
+        // รัน database migrations
+        await runMigration();
         
         // เริ่ม server (ใช้ http server แทน app)
         server.listen(config.port, () => {
