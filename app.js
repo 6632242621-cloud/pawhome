@@ -3651,7 +3651,8 @@ async function showLikeDetailModal(likeId, likeType) {
                 <div class="like-detail-card">
                     <img src="${imageSrc}" 
                          alt="${like.liker_name}" 
-                         class="like-detail-image">
+                         class="like-detail-image"
+                         onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'">
                     <div class="like-detail-info">
                         <div class="like-detail-name">${like.liker_name}</div>
                         <div class="like-detail-meta">
