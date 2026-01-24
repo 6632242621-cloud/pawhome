@@ -52,19 +52,23 @@ function initializeSocket() {
     socket.on('message:new', (message) => {
         console.log('📨 ===== NEW MESSAGE EVENT RECEIVED =====');
         console.log('📨 New message received:', message);
-        console.log('📨 Message match_id:', message.match_id);
-        console.log('📨 Message sender_id:', message.sender_id);
+        console.log('📨 Message match_id:', message?.match_id);
+        console.log('📨 Message sender_id:', message?.sender_id);
         console.log('📨 ======================================');
-        handleNewMessage(message);
+        if (message) {
+            handleNewMessage(message);
+        }
     });
 
     // Listen for new message notifications
     socket.on('notification:new_message', (data) => {
         console.log('🔔 ===== NOTIFICATION EVENT RECEIVED =====');
         console.log('🔔 New message notification:', data);
-        console.log('🔔 Notification match_id:', data.match_id);
+        console.log('🔔 Notification match_id:', data?.match_id);
         console.log('🔔 ========================================');
-        showNewMessageNotification(data);
+        if (data) {
+            showNewMessageNotification(data);
+        }
     });
 
     // Listen for typing indicators
@@ -84,6 +88,11 @@ function initializeSocket() {
 
 // Helper functions for socket
 function handleNewMessage(message) {
+    if (!message || !message.match_id) {
+        console.error('❌ Invalid message object:', message);
+        return;
+    }
+    
     console.log('📨 Processing message:', message);
     console.log('Current match ID:', currentMatchId, 'Message match ID:', message.match_id);
     console.log('Sender ID:', message.sender_id, 'Current User ID:', currentUserId);
@@ -120,6 +129,11 @@ function addMessageToChat(message) {
 }
 
 function showNewMessageNotification(data) {
+    if (!data || !data.match_id) {
+        console.error('❌ Invalid notification data:', data);
+        return;
+    }
+    
     console.log('🔔 Notification received:', data);
     
     // Only show notification and badge if not in this chat
