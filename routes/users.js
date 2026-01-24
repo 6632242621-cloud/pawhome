@@ -18,7 +18,7 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'pawhome/profiles',
         allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }]
+        transformation: [{ width: 500, height: 500, crop: 'thumb', gravity: 'center' }]
     }
 });
 
