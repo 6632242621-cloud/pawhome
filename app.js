@@ -3342,103 +3342,42 @@ async function loadNotifications() {
     loadingElement.style.display = 'block';
     
     try {
-        // Load both notifications and received likes
-        const [notifResponse, petLikesResponse, breedingLikesResponse] = await Promise.all([
-            fetch(`${API_BASE_URL}/notifications/list/${currentUserId}${showUnreadOnly ? '?unread_only=true' : ''}`),
-            fetch(`${API_BASE_URL}/likes/received/${currentUserId}`),
-            fetch(`${API_BASE_URL}/breeding/received/${currentUserId}`)
-        ]);
+        // Load notifications only (pet_like and breeding_like are already included)
+        const notifResponse = await fetch(
+            `${API_BASE_URL}/notifications/list/${currentUserId}${showUnreadOnly ? '?unread_only=true' : ''}`
+        );
         
         const notifResult = await notifResponse.json();
-        const petLikesResult = await petLikesResponse.json();
-        const breedingLikesResult = await breedingLikesResponse.json();
         
         loadingElement.style.display = 'none';
         
-        // Filter out pet_like and breeding_like notifications (we show them as received_like instead)
-        const notifications = notifResult.success 
-            ? notifResult.notifications.filter(n => n.type !== 'pet_like' && n.type !== 'breeding_like')
-            : [];
-        const petLikes = petLikesResult.success ? petLikesResult.likes : [];
-        const breedingLikes = breedingLikesResult.success ? breedingLikesResult.likes : [];
-        
-        // Combine received likes with notifications
-        const receivedLikesItems = [
-            ...petLikes.map(like => ({
-                id: `like_pet_${like.like_id}`,
-                type: 'received_like',
-                like_id: like.like_id,
-                like_type: 'pet_finder',
-                title: `${like.liker_name} สนใจสัตว์เลี้ยงของคุณ`,
-                message: `สนใจ ${like.pet_name} (${like.pet_breed})`,
-                created_at: like.liked_at,
-                is_read: false,
-                liker_image: like.liker_image,
-                liker_name: like.liker_name
-            })),
-            ...breedingLikes.map(like => ({
-                id: `like_breeding_${like.like_id}`,
-                type: 'received_like',
-                like_id: like.like_id,
-                like_type: 'breeding',
-                title: `${like.liker_name} สนใจสัตว์พันธุ์ของคุณ`,
-                message: `สนใจ ${like.pet_name} (${like.pet_breed})`,
-                created_at: like.liked_at,
-                is_read: false,
-                liker_image: like.liker_image,
-                liker_name: like.liker_name
-            }))
-        ];
+        // Use pet_like and breeding_like from notifications (not received_like items)
+        const notifications = notifResult.success ? notifResult.notifications : [];
         
         // Combine and sort all items by date
-        const allItems = [...notifications, ...receivedLikesItems]
+        const allItems = notifications
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         
         if (allItems.length > 0) {
             listElement.innerHTML = allItems.map(item => {
-                if (item.type === 'received_like') {
-                    // Special rendering for received likes
-                    return `
-                        <div class="notification-item" 
-                             data-type="received_like"
-                             data-like-id="${item.like_id}"
-                             data-like-type="${item.like_type}"
-                             style="cursor: pointer;">
-                            <div class="notification-header">
-                                <div class="notification-title">
-                                    <i class="notification-icon fas fa-heart" style="color: #FF6B6B;"></i>
-                                    ${item.title}
-                                </div>
-                                <div class="notification-time">${formatNotificationTime(item.created_at)}</div>
+                // Render all notifications with standard format
+                return `
+                    <div class="notification-item ${item.is_read ? '' : 'unread'}" 
+                         data-type="${item.type}"
+                         data-notif-id="${item.id}"
+                         data-link="${item.link || ''}"
+                         data-like-id="${item.related_like_id || ''}"
+                         data-like-type="${item.type === 'pet_like' ? 'pet_finder' : item.type === 'breeding_like' ? 'breeding' : ''}">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="notification-icon fas fa-${getNotificationIcon(item.type)}"></i>
+                                ${item.title}
                             </div>
-                            <div class="notification-message" style="display: flex; align-items: center; gap: 10px;">
-                                <img src="${item.liker_image || 'https://ui-avatars.com/api/?name=User&background=random&size=40'}" 
-                                     alt="${item.liker_name}"
-                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #FF6B6B;">
-                                <span>${item.message}</span>
-                            </div>
+                            <div class="notification-time">${formatNotificationTime(item.created_at)}</div>
                         </div>
-                    `;
-                } else {
-                    // Normal notification rendering
-                    return `
-                        <div class="notification-item ${item.is_read ? '' : 'unread'}" 
-                             data-type="${item.type}"
-                             data-notif-id="${item.id}"
-                             data-link="${item.link || ''}"
-                             data-like-id="${item.related_like_id || ''}"
-                             data-like-type="${item.type === 'pet_like' ? 'pet_finder' : item.type === 'breeding_like' ? 'breeding' : ''}">
-                            <div class="notification-header">
-                                <div class="notification-title">
-                                    <i class="notification-icon fas fa-${getNotificationIcon(item.type)}"></i>
-                                    ${item.title}
-                                </div>
-                                <div class="notification-time">${formatNotificationTime(item.created_at)}</div>
-                            </div>
-                            <div class="notification-message">${item.message}</div>
-                        </div>
-                    `;
-                }
+                        <div class="notification-message">${item.message}</div>
+                    </div>
+                `;
             }).join('');
             listElement.style.display = 'block';
             
@@ -3457,9 +3396,8 @@ async function loadNotifications() {
                 console.log('🔔 Notification clicked, type:', type);
                 console.log('🔔 Dataset:', notifItem.dataset);
                 
-                // Check if it's a like notification (either received_like or pet_like/breeding_like with likeId)
-                if (type === 'received_like' || 
-                    ((type === 'pet_like' || type === 'breeding_like') && likeId && likeType)) {
+                // Check if it's a like notification (pet_like/breeding_like with likeId)
+                if ((type === 'pet_like' || type === 'breeding_like') && likeId && likeType) {
                     // Handle like notification - open detail modal only
                     console.log('❤️ Handling like notification...');
                     console.log('❤️ Like ID:', likeId, 'Type:', likeType);
