@@ -3355,7 +3355,10 @@ async function loadNotifications() {
         
         loadingElement.style.display = 'none';
         
-        const notifications = notifResult.success ? notifResult.notifications : [];
+        // Filter out pet_like and breeding_like notifications (we show them as received_like instead)
+        const notifications = notifResult.success 
+            ? notifResult.notifications.filter(n => n.type !== 'pet_like' && n.type !== 'breeding_like')
+            : [];
         const petLikes = petLikesResult.success ? petLikesResult.likes : [];
         const breedingLikes = breedingLikesResult.success ? breedingLikesResult.likes : [];
         
