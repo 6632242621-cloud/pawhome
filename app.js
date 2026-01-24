@@ -3642,9 +3642,14 @@ async function showLikeDetailModal(likeId, likeType) {
             const age = like.liker_dob ? calculateAge(like.liker_dob) : 'ไม่ระบุ';
             const gender = like.liker_gender === 'male' ? 'ชาย' : like.liker_gender === 'female' ? 'หญิง' : 'ไม่ระบุ';
             
+            // สร้าง image src - ใช้ profile_image ถ้ามี ไม่เช่นนั้นใช้ placeholder
+            const imageSrc = (like.liker_image && like.liker_image !== 'NULL') 
+                ? `/${like.liker_image}` 
+                : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200';
+            
             document.getElementById('likeDetailContent').innerHTML = `
                 <div class="like-detail-card">
-                    <img src="${like.liker_image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'}" 
+                    <img src="${imageSrc}" 
                          alt="${like.liker_name}" 
                          class="like-detail-image">
                     <div class="like-detail-info">
