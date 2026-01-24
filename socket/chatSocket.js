@@ -42,9 +42,17 @@ function initializeSocketHandlers(io) {
 
                 // Save message to database
                 const [result] = await pool.query(
-                    `INSERT INTO messages (match_id, sender_id, message) VALUES (?, ?, ?)`,
+                    `INSERT INTO messages (match_id, sender_id, message) VALUES (?, ?, ?) RETURNING id`,
                     [match_id, sender_id, message]
                 );
+
+                const messageId = result.rows ? result.rows[0]?.id : result[0]?.id;
+                
+                if (!messageId) {
+                    console.error('❌ Failed to get message ID from insert');
+                    socket.emit('message:error', { error: 'ไม่สามารถบันทึกข้อความได้' });
+                    return;
+                }
 
                 // Get the saved message with sender info
                 const [messages] = await pool.query(
@@ -52,10 +60,18 @@ function initializeSocketHandlers(io) {
                      FROM messages m
                      JOIN users u ON m.sender_id = u.id
                      WHERE m.id = ?`,
-                    [result.insertId]
+                    [messageId]
                 );
 
                 const savedMessage = messages[0];
+                
+                if (!savedMessage) {
+                    console.error('❌ Failed to retrieve saved message');
+                    socket.emit('message:error', { error: 'ไม่สามารถโหลดข้อความได้' });
+                    return;
+                }
+
+                console.log('💾 Saved message:', savedMessage);
 
                 // Broadcast to all users in the match room
                 io.to(`match_${match_id}`).emit('message:new', savedMessage);
