@@ -781,12 +781,19 @@ header p {
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin-top: 150px;
+    margin-top: 20px; /* Default for Desktop and iPad */
     margin-bottom: 20px;
     position: relative;
     z-index: 10;
     transition: opacity 0.3s;
     padding-top: 10px;
+}
+
+/* Mobile only - increase margin for phones */
+@media (max-width: 768px) {
+    .swipe-buttons {
+        margin-top: 120px;
+    }
 }
 
 /* Hide swipe buttons when card is flipped */
