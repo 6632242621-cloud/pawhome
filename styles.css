@@ -5,22 +5,55 @@
 }
 
 :root {
-    --primary-color: #FF6B6B;
-    --secondary-color: #4ECDC4;
-    --accent-color: #FFE66D;
-    --text-color: #2D3436;
-    --bg-color: #F8F9FA;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    --success-color: #00D2A0;
-    --danger-color: #FF4757;
+    /* Pink Modern Theme */
+    --primary-color: #FF6B9D;
+    --primary-light: #FFB8D1;
+    --primary-dark: #E94B7F;
+    
+    --secondary-color: #8B5E3C;
+    --secondary-light: #C1956B;
+    --secondary-dark: #6B4423;
+    
+    --accent-color: #FFB088;
+    --accent-light: #FFD4B8;
+    
+    --text-color: #4A4A4A;
+    --text-light: #8A8A8A;
+    
+    --bg-color: #FFF8F3;
+    --bg-cream: #FFF5EB;
+    --card-bg: #FFFFFF;
+    
+    --card-shadow: 0 8px 24px rgba(255, 107, 157, 0.12);
+    --card-shadow-hover: 0 12px 32px rgba(255, 107, 157, 0.18);
+    
+    --success-color: #88D8B0;
+    --danger-color: #FF6B9D;
+    --warning-color: #FFB088;
+    
+    /* Spacing */
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Border Radius */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-round: 50%;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #FFE8F0 0%, #FFF5EB 50%, #FFE8EB 100%);
     color: var(--text-color);
     padding-bottom: 80px;
     min-height: 100vh;
+    font-weight: 400;
+    letter-spacing: -0.01em;
 }
 
 /* Desktop Layout */
@@ -55,13 +88,14 @@ body {
 }
 
 .auth-container {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
     max-width: 400px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: fadeInUp 0.5s;
+    box-shadow: var(--card-shadow-hover);
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 107, 157, 0.08);
 }
 
 @keyframes fadeInUp {
@@ -115,17 +149,21 @@ body {
 
 .form-group input {
     width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ecf0f1;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: all 0.3s;
+    padding: 14px 18px;
+    border: 2px solid #FFE8F0;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
+    background: var(--bg-cream);
+    color: var(--text-color);
 }
 
 .form-group input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.08);
+    transform: translateY(-1px);
 }
 
 .role-select {
@@ -151,26 +189,28 @@ body {
 
 .auth-btn {
     width: 100%;
-    padding: 15px;
-    background: var(--primary-color);
+    padding: 16px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    letter-spacing: 0.02em;
 }
 
 .auth-btn:hover {
-    background: #ff5252;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
 }
 
 .auth-btn:active {
     transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
 }
 
 .auth-toggle {
@@ -195,12 +235,14 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--card-bg);
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: 12px 0;
+    box-shadow: 0 -4px 20px rgba(255, 107, 157, 0.08);
     z-index: 1000;
+    border-top: 1px solid rgba(255, 107, 157, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 /* Desktop Side Navigation */
@@ -224,35 +266,42 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     cursor: pointer;
-    color: #95a5a6;
-    transition: all 0.3s;
+    color: var(--text-light);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 8px 4px;
     position: relative;
     flex: 1;
     min-width: 0;
+    border-radius: var(--radius-md);
 }
 
 .nav-btn i {
-    font-size: 20px;
+    font-size: 22px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-btn span {
-    font-size: 10px;
+    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    font-weight: 500;
 }
 
 .nav-btn.active {
     color: var(--primary-color);
 }
 
+.nav-btn.active i {
+    transform: scale(1.1);
+}
+
 .nav-btn:hover {
     color: var(--primary-color);
-    transform: translateY(-2px);
+    background: rgba(255, 107, 157, 0.05);
 }
 
 /* Extra Small Mobile - Hide text, show icons only */
@@ -422,12 +471,13 @@ header p {
 .pet-card {
     position: absolute;
     width: 100%;
-    background: white;
-    border-radius: 20px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
     box-shadow: var(--card-shadow);
     cursor: grab;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     perspective: 1000px;
+    border: 2px solid rgba(255, 107, 157, 0.08);
 }
 
 .pet-card:active {
@@ -464,10 +514,11 @@ header p {
     top: 0;
     left: 0;
     transform: rotateY(180deg);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB8D1 0%, #FF6B9D 50%, #FFB088 100%);
     color: white;
     min-height: 100%;
     height: 100%;
+    border-radius: var(--radius-lg);
 }
 
 /* Desktop Card Back */
@@ -504,25 +555,26 @@ header p {
 
 .flip-btn {
     width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 14px;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 15px;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(139, 94, 60, 0.2);
 }
 
 .flip-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 18px rgba(139, 94, 60, 0.3);
 }
 
 /* Caregiver Info (Back of Card) */
@@ -804,32 +856,47 @@ header p {
 }
 
 .swipe-btn {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-round);
     border: none;
     font-size: 30px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .swipe-btn.reject {
-    background: white;
-    color: var(--danger-color);
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFF5EB 100%);
+    color: var(--text-light);
+    border: 2px solid rgba(255, 107, 157, 0.15);
 }
 
 .swipe-btn.like {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.35);
 }
 
 .swipe-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.12) translateY(-3px);
+}
+
+.swipe-btn.reject:hover {
+    background: linear-gradient(135deg, #FFF5EB 0%, #FFE8F0 100%);
+    border-color: rgba(255, 107, 157, 0.25);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.15);
+}
+
+.swipe-btn.like:hover {
+    box-shadow: 0 8px 28px rgba(255, 107, 157, 0.45);
 }
 
 .swipe-btn:active {
-    transform: scale(0.95);
+    transform: scale(1.05);
 }
 
 /* No More Cards */
