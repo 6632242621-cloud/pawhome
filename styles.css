@@ -906,18 +906,21 @@ header p {
 /* No More Cards */
 .no-more-cards {
     text-align: center;
-    color: white;
+    color: var(--primary-color);
     padding: 50px;
 }
 
 .no-more-cards i {
     font-size: 64px;
     margin-bottom: 20px;
+    color: var(--primary-light);
 }
 
 .no-more-cards p {
     font-size: 24px;
     margin-bottom: 20px;
+    color: var(--primary-color);
+    font-weight: 500;
 }
 
 .reload-btn {
